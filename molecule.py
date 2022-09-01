@@ -90,7 +90,6 @@ class Molecule:
                 dist_array[j, i] = dist  # opposite elements are equal
         return dist_array
 
-
     # Coulomb matrix
 
     def triangle_cm(self, charges, xyz, dim):
@@ -120,7 +119,6 @@ class Molecule:
 
 
 class Quantum:
-
     def __init__(self):
         pass
 
@@ -141,27 +139,30 @@ class Quantum:
     def read_bagel_dyson(self, bagel_dyson_output, max_rows):
         """read dyson norms and ionisation energies from a bagel dyson output file"""
         str_find = "Norms^2 of Dyson orbitals approximately indicate the strength of an inization transitions."
-        energy, norm = [], []  # define here to avoid return error if str_find isn't found
+        energy, norm = (
+            [],
+            [],
+        )  # define here to avoid return error if str_find isn't found
         with open(bagel_dyson_output, "r") as f:
             for line in f:
-                if str_find in line:    # go to line containing str
-                    out_array = np.loadtxt(     # numpy loadtxt into an array
+                if str_find in line:  # go to line containing str
+                    out_array = np.loadtxt(  # numpy loadtxt into an array
                         f,
                         dtype={
                             "names": ("from", "-", "to", "energy", "norm"),
                             "formats": ("i4", "a2", "i4", "f4", "f4"),
                         },
-                        skiprows = 4,
-                        max_rows = max_rows
+                        skiprows=4,
+                        max_rows=max_rows,
                     )
                     energy = out_array["energy"]
                     norm = out_array["norm"]
         return energy, norm
-    ### End Bagel stuff 
+
+    ### End Bagel stuff
 
 
 class Normal_modes:
-
     def __init__(self):
         pass
 
@@ -186,9 +187,9 @@ class Normal_modes:
                     dindex = int(i / 3)
                     displacements[j, dindex, 0] = tmp[i, j]  # x coordinates
                 elif (i - 1) % 3 == 0:  # Indices 1,4,7,...
-                    displacements[j, dindex, 1] = tmp[i, j]  # x coordinates
+                    displacements[j, dindex, 1] = tmp[i, j]  # y coordinates
                 elif (i - 2) % 3 == 0:  # Indices 2,5,8,...
-                    displacements[j, dindex, 2] = tmp[i, j]  # x coordinates
+                    displacements[j, dindex, 2] = tmp[i, j]  # z coordinates
         return displacements
 
     def displace_xyz(self, xyz, displacement, factor):
@@ -220,6 +221,7 @@ class Normal_modes:
             self.write_xyz(xyzfile_out, str(factor[k]), atoms, xyz)
 
     ### End normal modes section
+
 
 class Spectra:
     """Manipulate spectra data; apply broadening etc."""
@@ -341,4 +343,3 @@ class Xray:
                 molecular += 2 * fij * np.sinc(qvector * dist / np.pi)
         iam = atomic + molecular
         return iam
-
