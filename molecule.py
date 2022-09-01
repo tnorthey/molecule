@@ -78,8 +78,6 @@ class Molecule:
 
     def distances_array(self, xyz):
         """Computes matrix of distances from xyz"""
-        print(xyz)
-        print(len(xyz))
         natom = xyz.shape[0]  # number of atoms
         dist_array = np.zeros((natom, natom))  # the array of distances
         for i in range(natom):
