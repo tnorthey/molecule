@@ -9,11 +9,15 @@ Setup virtual environment,
 python -m venv .venv
 ```
 then activate the venv,
-`source .venv/bin/activate`
+```source .venv/bin/activate```
 install requirements
-`pip install -r requirements.txt`
+```pip install -r requirements.txt```
 To exit the venv,
-`deactivate`
+```deactivate```
+
+It uses pytest (unit tests are in `test_functions.py`).
+```pytest -v```
+to confirm all tests pass.
 
 ## Description
 ### Molecule subclass
