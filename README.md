@@ -2,6 +2,20 @@
 
 # molecule
 
+## Usage
+
+Setup virtual environment,
+```
+python -m venv .venv
+```
+then activate the venv,
+`source .venv/bin/activate`
+install requirements
+`pip install -r requirements.txt`
+To exit the venv,
+`deactivate`
+
+## Description
 ### Molecule subclass
 - read/write xyz
 - distance matrix, Coulomb matrix
