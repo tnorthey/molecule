@@ -199,17 +199,17 @@ class Normal_modes:
         xyz and displacement should be same size"""
         return xyz + displacement * factor
 
-    def nm_displacer(self, xyz, displacements, modes, factor):
+    def nm_displacer(self, xyz, displacements, modes, factors):
         """displace xyz along all displacements by factors array"""
-        natoms = xyz.shape[0]
         summed_displacement = np.zeros(displacements[0, :, :].shape)
-        c = 0
-        modes_array = np.array([modes])  # convert to arrays for iteration
-        factor_array = factor * np.ones(len(modes_array))
-        for mode in modes_array:
-            summed_displacement += displacements[mode, :, :] * factor_array[c]
-            c += 1
-        displaced_xyz = self.displace_xyz(xyz, summed_displacement, 1)
+        modes_array = np.squeeze(np.array([modes]))  # convert to arrays for iteration
+        nmodes = len(modes_array)
+        factors_array = np.multiply(factors, np.ones(nmodes))
+        for i in range(nmodes):
+            summed_displacement += (
+                displacements[modes_array[i], :, :] * factors_array[i]
+            )
+        displaced_xyz = self.displace_xyz(xyz, summed_displacement, 1.0)
         return displaced_xyz
 
     def animate_mode(self, mode, xyz_start_file, nmfile, natoms):
