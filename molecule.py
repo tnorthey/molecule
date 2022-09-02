@@ -116,13 +116,17 @@ class Molecule:
         return rcm
 
 
+m = Molecule()
+### End Molecule class section
+
+
 class Quantum:
     def __init__(self):
         pass
 
     # Bagel stuff
     def write_bagel_dyson(self, xyzfile, outfile="bagel_inp.json"):
-        """writes a bagel dyson norm input file based on 
+        """writes a bagel dyson norm input file based on
         bagel_dyson.template with atoms and geometry from xyzfile"""
         _, _, atoms, _, xyzmatrix = self.read_xyz(xyzfile)
         bagel_df = pd.read_json(
@@ -166,9 +170,9 @@ class Normal_modes:
 
     ### Normal modes section
     def read_nm_displacements(self, fname, natoms):
-        """ read_nm_displacements: Reads displacement vector from file=fname e.g. 'normalmodes.txt'
+        """read_nm_displacements: Reads displacement vector from file=fname e.g. 'normalmodes.txt'
         Inputs: 	natoms (int), total number of atoms
-        Outputs:	displacements, array of displacements, size: (nmodes, natoms, 3) """
+        Outputs:	displacements, array of displacements, size: (nmodes, natoms, 3)"""
         if natoms == 2:
             nmodes = 1
         elif natoms > 2:
@@ -195,13 +199,15 @@ class Normal_modes:
         xyz and displacement should be same size"""
         return xyz + displacement * factor
 
-    def nm_displacer(self, xyz, displacements, modes, factors):
+    def nm_displacer(self, xyz, displacements, modes, factor):
         """displace xyz along all displacements by factors array"""
         natoms = xyz.shape[0]
         summed_displacement = np.zeros(displacements[0, :, :].shape)
         c = 0
-        for mode in modes:
-            summed_displacement += displacements[mode, :, :] * factors[c]
+        modes_array = np.array([modes])  # convert to arrays for iteration
+        factor_array = factor * np.ones(len(modes_array))
+        for mode in modes_array:
+            summed_displacement += displacements[mode, :, :] * factor_array[c]
             c += 1
         displaced_xyz = self.displace_xyz(xyz, summed_displacement, 1)
         return displaced_xyz
@@ -212,11 +218,11 @@ class Normal_modes:
         a = 0.4
         factor = np.linspace(-a, a, 20, endpoint=True)
         factor = np.append(factor, np.linspace(a, -a, 20, endpoint=True))
-        _, _, atoms, _, xyz_start = self.read_xyz(xyz_start_file)
+        _, _, atoms, xyz_start = m.read_xyz(xyz_start_file)
         for k in range(len(factor)):
-            xyz = self.nm_displacer(xyz_start, displacements, [mode], factor[k])
+            xyz = self.nm_displacer(xyz_start, displacements, mode, factor[k])
             xyzfile_out = "animate/mode%i_%s.xyz" % (mode, str(k).zfill(2))
-            self.write_xyz(xyzfile_out, str(factor[k]), atoms, xyz)
+            m.write_xyz(xyzfile_out, str(factor[k]), atoms, xyz)
 
     ### End normal modes section
 
