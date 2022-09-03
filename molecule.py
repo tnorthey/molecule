@@ -224,7 +224,39 @@ class Normal_modes:
             xyzfile_out = "animate/mode%i_%s.xyz" % (mode, str(k).zfill(2))
             m.write_xyz(xyzfile_out, str(factor[k]), atoms, xyz)
 
-    ### End normal modes section
+    def generate_structures(
+        self, starting_xyzfile, nmfile, modes, displacement_factor, nstructures, option
+    ):
+        """generate xyz files by normal mode displacements"""
+        nmodes = len(modes)
+        xyzheader, comment, atomlist, xyz = m.read_xyz(starting_xyzfile)
+        # starting coordinates
+        a = displacement_factor
+        # read normal modes
+        displacements = self.read_nm_displacements(nmfile, natom)
+        if option == "linear":
+            linear_dist, normal_dist = True, False
+        elif option == "normal":
+            linear_dist, normal_dist = False, True
+        # generate random structures
+        for i in range(nstructures):
+            if linear_dist:
+                factors = (
+                    np.random.rand(nmodes) * 2 * a - a
+                )  # random factors in range [-a, a]
+            elif normal_dist:
+                mu, sigma = 0, a  # mean and standard deviation
+                factors = np.random.normal(
+                    mu, sigma, nmodes
+                )  # random factors in normal distribution with standard deviation = a
+            displaced_xyz = self.nm_displacer(xyz, displacements, modes, factors)
+            fname = "xyz/generated/%s.xyz" % str(i).zfill(4)
+            comment = "generated: %s" % str(i).zfill(4)
+            m.write_xyz(fname, comment, atomlist, displaced_xyz)
+
+
+nm = Normal_modes()
+### End normal modes section
 
 
 class Spectra:
@@ -347,3 +379,7 @@ class Xray:
                 molecular += 2 * fij * np.sinc(qvector * dist / np.pi)
         iam = atomic + molecular
         return iam
+
+    def iam_duplicate_search(self, nm_file, natoms):
+        displacements = nm.read_nm_displacements(self, nm_file, natoms)
+
