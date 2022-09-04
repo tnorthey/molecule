@@ -307,6 +307,7 @@ class Xray:
                 [6.2915, 3.0353, 1.9891, 1.5410],  # Siv
                 [6.4345, 4.1791, 1.7800, 1.4908],  # phosphorus
                 [6.9053, 5.2034, 1.4379, 1.5863],  # sulphur
+                [11.4604, 7.1964, 6.2556, 1.6455],  # chlorine
             ]
         )
 
@@ -328,6 +329,7 @@ class Xray:
                 [2.4386, 32.3337, 0.6785, 81.6937],  # Siv
                 [1.9067, 27.1570, 0.5260, 68.1645],  # P
                 [1.4679, 22.2151, 0.2536, 56.1720],  # S
+                [0.0104, 1.1662, 18.5194, 47.7784],  # Cl
             ]
         )
 
@@ -342,13 +344,14 @@ class Xray:
                 -11.529,  # nitrogen
                 0.2508,  # oxygen
                 0.2776,  # fluorine
-                0.3515,
-                0.6760,
-                0.8584,
-                1.1151,
-                1.1407,
-                1.1149,
-                0.8669,
+                0.3515,  # Ne
+                0.6760,  # Na
+                0.8584,  # Mg
+                1.1151,  # Al
+                1.1407,  # Si
+                1.1149,  # P
+                0.8669,  # S
+                -9.5574,  # Cl
             ]
         )
 
@@ -380,6 +383,41 @@ class Xray:
         iam = atomic + molecular
         return iam
 
-    def iam_duplicate_search(self, nm_file, natoms):
-        displacements = nm.read_nm_displacements(self, nm_file, natoms)
-
+    def iam_duplicate_search(
+        self, starting_xyzfile, nmfile, modes, displacement_factor, niterations
+    ):
+        # from scipy.stats import chisquare
+        # starting coordinates
+        xyzheader, comment, atomlist, xyz = m.read_xyz(starting_xyzfile)
+        atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
+        natoms = len(atomlist)
+        # read normal modes
+        displacements = nm.read_nm_displacements(nmfile, natoms)
+        a = displacement_factor
+        nmodes = len(modes)
+        qvector = np.linspace(0, 10, 100, endpoint=True)
+        # generate random structures
+        c = 0
+        thresh_chi_dist = 1
+        thresh_chi_iams = 5
+        for i in range(niterations):
+            factors = (
+                np.random.rand(nmodes) * 2 * a - a
+            )  # random factors in range [-a, a]
+            xyz_1 = nm.nm_displacer(xyz, displacements, modes, factors)
+            factors = (
+                np.random.rand(nmodes) * 2 * a - a
+            )  # random factors in range [-a, a]
+            xyz_2 = nm.nm_displacer(xyz, displacements, modes, factors)
+            dist_array_1 = m.distances_array(xyz_1)
+            dist_array_2 = m.distances_array(xyz_2)
+            iam_1 = self.iam_calc(atomic_numbers, xyz_1, qvector)
+            iam_2 = self.iam_calc(atomic_numbers, xyz_2, qvector)
+            chi_dists = np.linalg.norm(dist_array_1.flatten() - dist_array_2.flatten())
+            chi_iams = np.linalg.norm(iam_1 - iam_2)
+            if chi_dists < thresh_chi_dist and chi_iams < thresh_chi_iams:
+                c += 1
+                print(c)
+                m.write_xyz("xyz/%d_found_1.xyz" % c, str(c), atomlist, xyz_1)
+                m.write_xyz("xyz/%d_found_2.xyz" % c, str(c), atomlist, xyz_2)
+        return
