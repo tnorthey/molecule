@@ -395,11 +395,13 @@ class Xray:
         displacements = nm.read_nm_displacements(nmfile, natoms)
         a = displacement_factor
         nmodes = len(modes)
-        qvector = np.linspace(0, 10, 100, endpoint=True)
+        qlen = 101
+        qvector = np.linspace(0, 10, qlen, endpoint=True)
         # generate random structures
+        thresh_chi_dist = 0.01
+        #thresh_chi_iams = 0.001
+        thresh_chi_iams = 0.01
         c = 0
-        thresh_chi_dist = 1
-        thresh_chi_iams = 5
         for i in range(niterations):
             factors = (
                 np.random.rand(nmodes) * 2 * a - a
@@ -413,11 +415,16 @@ class Xray:
             dist_array_2 = m.distances_array(xyz_2)
             iam_1 = self.iam_calc(atomic_numbers, xyz_1, qvector)
             iam_2 = self.iam_calc(atomic_numbers, xyz_2, qvector)
-            chi_dists = np.linalg.norm(dist_array_1.flatten() - dist_array_2.flatten())
-            chi_iams = np.linalg.norm(iam_1 - iam_2)
-            if chi_dists < thresh_chi_dist and chi_iams < thresh_chi_iams:
+            chi_dists = abs(np.sum( dist_array_1.flatten() - dist_array_2.flatten() )) / natoms**2
+            chi_iams = 100*abs(np.sum(iam_1/iam_2 - 1)) / qlen
+            if chi_dists > thresh_chi_dist and chi_iams < thresh_chi_iams:
                 c += 1
                 print(c)
-                m.write_xyz("xyz/%d_found_1.xyz" % c, str(c), atomlist, xyz_1)
-                m.write_xyz("xyz/%d_found_2.xyz" % c, str(c), atomlist, xyz_2)
+                m.write_xyz("xyz/%d_found_1.xyz" % c, 'found %d' % c, atomlist, xyz_1)
+                m.write_xyz("xyz/%d_found_2.xyz" % c, 'found %d' % c, atomlist, xyz_2)
+                # save IAMs to csv
+                csvfile = 'xyz/%d_found_1.csv' % c
+                np.savetxt(csvfile, np.column_stack((qvector, iam_1)), delimiter=' ')
+                csvfile = 'xyz/%d_found_2.csv' % c
+                np.savetxt(csvfile, np.column_stack((qvector, iam_2)), delimiter=' ')
         return

@@ -17,7 +17,7 @@ print("number of modes = %i" % nmodes)
 displacement_factor = 0.2
 
 # generate random structures
-niterations = 10
+niterations = 1000
 
 x.iam_duplicate_search(starting_xyzfile, nmfile, modes, displacement_factor, niterations)
 
