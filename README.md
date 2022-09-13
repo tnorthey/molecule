@@ -5,7 +5,9 @@
 ## Usage
 
 Setup virtual environment,
-``` python -m venv .venv ```
+```bash
+python -m venv .venv
+```
 then activate the venv,
 ``` source .venv/bin/activate ```
 install requirements
