@@ -1,5 +1,5 @@
 # custom
-xyz/generated/*.xyz
+xyz/generated/*
 bagel/generated/*
 csv/*.csv
 

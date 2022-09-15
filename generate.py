@@ -13,10 +13,10 @@ title = "nmm"
 
 starting_xyzfile = "xyz/%s.xyz" % title
 nmfile = "nm/%s_normalmodes.txt" % title
-nmodes = 30
+nmodes = 48
 modes = list(range(0, nmodes))
 displacement_factor = 0.2
-nstructures = 1000
+nstructures = 10000
 option = 'normal'
 directory = "xyz/generated/%s_%i" % (title, nstructures)
 os.makedirs(directory, exist_ok=True)  # create directory if doesn't exist
