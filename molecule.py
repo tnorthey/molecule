@@ -15,6 +15,7 @@ x Z-matrix displacement
 x Z-matrix sampling
 """
 ######
+import os
 import numpy as np
 import pandas as pd
 
@@ -225,15 +226,23 @@ class Normal_modes:
             m.write_xyz(xyzfile_out, str(factor[k]), atoms, xyz)
 
     def generate_structures(
-        self, starting_xyzfile, nmfile, modes, displacement_factor, nstructures, option
+        self,
+        starting_xyzfile,
+        nmfile,
+        modes,
+        displacement_factor,
+        nstructures,
+        option,
+        directory,
     ):
         """generate xyz files by normal mode displacements"""
         nmodes = len(modes)
         xyzheader, comment, atomlist, xyz = m.read_xyz(starting_xyzfile)
+        natoms = len(atomlist)
         # starting coordinates
         a = displacement_factor
         # read normal modes
-        displacements = self.read_nm_displacements(nmfile, natom)
+        displacements = self.read_nm_displacements(nmfile, natoms)
         if option == "linear":
             linear_dist, normal_dist = True, False
         elif option == "normal":
@@ -250,7 +259,7 @@ class Normal_modes:
                     mu, sigma, nmodes
                 )  # random factors in normal distribution with standard deviation = a
             displaced_xyz = self.nm_displacer(xyz, displacements, modes, factors)
-            fname = "xyz/generated/%s.xyz" % str(i).zfill(4)
+            fname = "%s/%s.xyz" % (directory, str(i).zfill(4))
             comment = "generated: %s" % str(i).zfill(4)
             m.write_xyz(fname, comment, atomlist, displaced_xyz)
 
@@ -399,7 +408,7 @@ class Xray:
         qvector = np.linspace(0, 10, qlen, endpoint=True)
         # generate random structures
         thresh_chi_dist = 0.01
-        #thresh_chi_iams = 0.001
+        # thresh_chi_iams = 0.001
         thresh_chi_iams = 0.01
         c = 0
         for i in range(niterations):
@@ -415,16 +424,19 @@ class Xray:
             dist_array_2 = m.distances_array(xyz_2)
             iam_1 = self.iam_calc(atomic_numbers, xyz_1, qvector)
             iam_2 = self.iam_calc(atomic_numbers, xyz_2, qvector)
-            chi_dists = abs(np.sum( dist_array_1.flatten() - dist_array_2.flatten() )) / natoms**2
-            chi_iams = 100*abs(np.sum(iam_1/iam_2 - 1)) / qlen
+            chi_dists = (
+                abs(np.sum(dist_array_1.flatten() - dist_array_2.flatten()))
+                / natoms**2
+            )
+            chi_iams = 100 * abs(np.sum(iam_1 / iam_2 - 1)) / qlen
             if chi_dists > thresh_chi_dist and chi_iams < thresh_chi_iams:
                 c += 1
                 print(c)
-                m.write_xyz("xyz/%d_found_1.xyz" % c, 'found %d' % c, atomlist, xyz_1)
-                m.write_xyz("xyz/%d_found_2.xyz" % c, 'found %d' % c, atomlist, xyz_2)
+                m.write_xyz("xyz/%d_found_1.xyz" % c, "found %d" % c, atomlist, xyz_1)
+                m.write_xyz("xyz/%d_found_2.xyz" % c, "found %d" % c, atomlist, xyz_2)
                 # save IAMs to csv
-                csvfile = 'xyz/%d_found_1.csv' % c
-                np.savetxt(csvfile, np.column_stack((qvector, iam_1)), delimiter=' ')
-                csvfile = 'xyz/%d_found_2.csv' % c
-                np.savetxt(csvfile, np.column_stack((qvector, iam_2)), delimiter=' ')
+                csvfile = "xyz/%d_found_1.csv" % c
+                np.savetxt(csvfile, np.column_stack((qvector, iam_1)), delimiter=" ")
+                csvfile = "xyz/%d_found_2.csv" % c
+                np.savetxt(csvfile, np.column_stack((qvector, iam_2)), delimiter=" ")
         return
