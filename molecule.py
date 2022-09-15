@@ -234,6 +234,7 @@ class Normal_modes:
         nstructures,
         option,
         directory,
+        dist_arrays
     ):
         """generate xyz files by normal mode displacements"""
         nmodes = len(modes)
@@ -249,6 +250,9 @@ class Normal_modes:
             linear_dist, normal_dist = False, True
         # generate random structures
         n_zfill = len(str(nstructures))
+        if dist_arrays:
+            dist_array = np.zeros((natoms, natoms, nstructures))
+            dist_save_bool = True
         for i in range(nstructures):
             if linear_dist:
                 factors = (
@@ -260,9 +264,15 @@ class Normal_modes:
                     mu, sigma, nmodes
                 )  # random factors in normal distribution with standard deviation = a
             displaced_xyz = self.nm_displacer(xyz, displacements, modes, factors)
+            if dist_save_bool:
+                dist_array[:,:,i] = m.distances_array(displaced_xyz)
             fname = "%s/%s.xyz" % (directory, str(i).zfill(n_zfill))
             comment = "generated: %s" % str(i).zfill(n_zfill)
             m.write_xyz(fname, comment, atomlist, displaced_xyz)
+        # file saves
+        if dist_save_bool:
+            outfile = 'distances.npy'
+            np.save(outfile, dist_array)
 
 
 nm = Normal_modes()
