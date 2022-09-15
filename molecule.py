@@ -248,6 +248,7 @@ class Normal_modes:
         elif option == "normal":
             linear_dist, normal_dist = False, True
         # generate random structures
+        n_zfill = len(str(nstructures))
         for i in range(nstructures):
             if linear_dist:
                 factors = (
@@ -259,8 +260,8 @@ class Normal_modes:
                     mu, sigma, nmodes
                 )  # random factors in normal distribution with standard deviation = a
             displaced_xyz = self.nm_displacer(xyz, displacements, modes, factors)
-            fname = "%s/%s.xyz" % (directory, str(i).zfill(4))
-            comment = "generated: %s" % str(i).zfill(4)
+            fname = "%s/%s.xyz" % (directory, str(i).zfill(n_zfill))
+            comment = "generated: %s" % str(i).zfill(n_zfill)
             m.write_xyz(fname, comment, atomlist, displaced_xyz)
 
 
