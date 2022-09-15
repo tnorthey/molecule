@@ -234,7 +234,8 @@ class Normal_modes:
         nstructures,
         option,
         directory,
-        dist_arrays
+        dist_arrays,
+        iam_arrays
     ):
         """generate xyz files by normal mode displacements"""
         nmodes = len(modes)
@@ -253,6 +254,13 @@ class Normal_modes:
         if dist_arrays:
             dist_array = np.zeros((natoms, natoms, nstructures))
             dist_save_bool = True
+        if iam_arrays:
+            nq = 101
+            qend = 10
+            qvector = np.linspace(0, qend, nq, endpoint=True)
+            atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
+            iam_array = np.zeros((nq, nstructures))
+            iam_save_bool = True
         for i in range(nstructures):
             if linear_dist:
                 factors = (
@@ -266,6 +274,8 @@ class Normal_modes:
             displaced_xyz = self.nm_displacer(xyz, displacements, modes, factors)
             if dist_save_bool:
                 dist_array[:,:,i] = m.distances_array(displaced_xyz)
+            if iam_save_bool:
+                iam_array[:,i] = x.iam_calc(atomic_numbers, displaced_xyz, qvector)
             fname = "%s/%s.xyz" % (directory, str(i).zfill(n_zfill))
             comment = "generated: %s" % str(i).zfill(n_zfill)
             m.write_xyz(fname, comment, atomlist, displaced_xyz)
@@ -273,6 +283,9 @@ class Normal_modes:
         if dist_save_bool:
             outfile = 'distances.npy'
             np.save(outfile, dist_array)
+        if iam_save_bool:
+            outfile = 'iam_arrays.npz'
+            np.savez(outfile, q=qvector, iam=iam_array)
 
 
 nm = Normal_modes()
@@ -451,3 +464,5 @@ class Xray:
                 csvfile = "xyz/%d_found_2.csv" % c
                 np.savetxt(csvfile, np.column_stack((qvector, iam_2)), delimiter=" ")
         return
+
+x = Xray()

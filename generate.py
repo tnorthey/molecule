@@ -23,6 +23,7 @@ option = 'normal'
 directory = "xyz/generated/%s_%i" % (title, nstructures)
 os.makedirs(directory, exist_ok=True)  # create directory if doesn't exist
 dist_arrays = True
+iam_arrays = True
 
 nm.generate_structures(    
         starting_xyzfile,
@@ -32,5 +33,6 @@ nm.generate_structures(
         nstructures,
         option,
         directory,
-        dist_arrays
+        dist_arrays,
+        iam_arrays
     )
