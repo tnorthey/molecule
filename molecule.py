@@ -256,12 +256,14 @@ class Normal_modes:
             dist_save_bool = True
         if iam_arrays:
             nq = 101
-            qend = 10
-            qvector = np.linspace(0, qend, nq, endpoint=True)
+            qstart = 0 # 0.33226583
+            qend = 10 # 4.37267671
+            qvector = np.linspace(qstart, qend, nq, endpoint=True)
             atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
             iam_array = np.zeros((nq, nstructures))
             iam_save_bool = True
         for i in range(nstructures):
+            print(i)
             if linear_dist:
                 factors = (
                     np.random.rand(nmodes) * 2 * a - a
