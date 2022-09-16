@@ -6,6 +6,7 @@ distances*.npy
 iam_arrays*.npz
 *.np[yz]  # not storing large data files
 *.png # don't save images
+xyz/*.png
 notebooks/*.png
 
 # Byte-compiled / optimized / DLL files

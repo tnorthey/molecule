@@ -255,9 +255,9 @@ class Normal_modes:
             dist_array = np.zeros((natoms, natoms, nstructures))
             dist_save_bool = True
         if iam_arrays:
-            nq = 101
-            qstart = 0 # 0.33226583
-            qend = 10 # 4.37267671
+            nq = 39
+            qstart = 0.33226583
+            qend = 4.37267671
             qvector = np.linspace(qstart, qend, nq, endpoint=True)
             atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
             iam_array = np.zeros((nq, nstructures))

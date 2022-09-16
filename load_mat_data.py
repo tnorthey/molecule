@@ -12,9 +12,11 @@ print(len(q))
 print('q :')
 print(q)
 print('iso :')
-print(mat['iso'])
+data = mat['iso']
+print(data)
 print('iso_stdx :')
-print(mat['iso_stdx'])
+data2 = mat['iso_stdx']
+print(data2)
 
 # for v7.3 mat files (which are hdf5 datasets):
 #import numpy as np
