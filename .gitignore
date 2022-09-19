@@ -3,11 +3,13 @@ xyz/generated/*
 bagel/generated/*
 csv/*.csv
 distances*.npy
+chi*.np[yz]
 iam_arrays*.npz
 *.np[yz]  # not storing large data files
 *.png # don't save images
 xyz/*.png
 notebooks/*.png
+notebooks/*.np[yz]
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

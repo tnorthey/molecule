@@ -235,7 +235,7 @@ class Normal_modes:
         option,
         directory,
         dist_arrays,
-        iam_arrays
+        iam_arrays,
     ):
         """generate xyz files by normal mode displacements"""
         nmodes = len(modes)
@@ -261,7 +261,12 @@ class Normal_modes:
             qvector = np.linspace(qstart, qend, nq, endpoint=True)
             atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
             iam_array = np.zeros((nq, nstructures))
+            pcd_array = np.zeros((nq, nstructures))
             iam_save_bool = True
+            # refence IAM curve
+            reference_xyz = 'xyz/nmm.xyz'
+            xyzheader, comment, atomlist, xyz = m.read_xyz(reference_xyz)
+            reference_iam = x.iam_calc(atomic_numbers, xyz, qvector)
         for i in range(nstructures):
             print(i)
             if linear_dist:
@@ -275,19 +280,21 @@ class Normal_modes:
                 )  # random factors in normal distribution with standard deviation = a
             displaced_xyz = self.nm_displacer(xyz, displacements, modes, factors)
             if dist_save_bool:
-                dist_array[:,:,i] = m.distances_array(displaced_xyz)
+                dist_array[:, :, i] = m.distances_array(displaced_xyz)
             if iam_save_bool:
-                iam_array[:,i] = x.iam_calc(atomic_numbers, displaced_xyz, qvector)
+                iam_array[:, i] = x.iam_calc(atomic_numbers, displaced_xyz, qvector)
+                pcd_array[:, i] = 100*(iam_array[:, i]/reference_iam - 1)
             fname = "%s/%s.xyz" % (directory, str(i).zfill(n_zfill))
             comment = "generated: %s" % str(i).zfill(n_zfill)
             m.write_xyz(fname, comment, atomlist, displaced_xyz)
         # file saves
         if dist_save_bool:
-            outfile = 'distances.npy'
+            outfile = "distances_%i.npy" % nstructures
             np.save(outfile, dist_array)
         if iam_save_bool:
-            outfile = 'iam_arrays.npz'
-            np.savez(outfile, q=qvector, iam=iam_array)
+            outfile = "iam_arrays_%i.npz" % nstructures
+            print('saving %s...' % outfile)
+            np.savez(outfile, q=qvector, iam=iam_array, pcd=pcd_array)
 
 
 nm = Normal_modes()
@@ -466,5 +473,6 @@ class Xray:
                 csvfile = "xyz/%d_found_2.csv" % c
                 np.savetxt(csvfile, np.column_stack((qvector, iam_2)), delimiter=" ")
         return
+
 
 x = Xray()
