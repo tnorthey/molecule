@@ -32,24 +32,13 @@ errors_exp = mat["iso_stdx"]
 nt = len(t_exp)
 chi2 = np.zeros((N, nt))
 a_factor = np.ones((N, nt))
+factor = 0.057
 for t in range(nt):
     print(t)
     y = np.squeeze(pcd_exp[:, t])
-    maxy = np.mean(y)
     for i in range(N):
-        x = pcd[:, i]
-        maxx = np.mean(x)
-        factor = maxy / maxx
-        x = factor * x
+        x = factor * pcd[:, i]
         chi2[i, t] = np.sum((x - y) ** 2)
-        for j in range(100):
-            a = random()
-            chi2_tmp = np.sum((a * x - y) ** 2)
-            if chi2_tmp < chi2[i, t]:
-                chi2[i, t] = chi2_tmp
-                a_factor[i, t] = factor * a
-                # if chi2_tmp < 0.001:
-                #    break
 
 chi2 /= nq  # normalise by len(q)
-np.savez("chi2_%i.npz" % N, chi2=chi2, pcd=pcd, a_factor=a_factor)
+np.savez("chi2_%i.npz" % N, chi2=chi2)

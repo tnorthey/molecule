@@ -203,7 +203,8 @@ class Normal_modes:
     def nm_displacer(self, xyz, displacements, modes, factors):
         """displace xyz along all displacements by factors array"""
         summed_displacement = np.zeros(displacements[0, :, :].shape)
-        modes_array = np.squeeze(np.array([modes]))  # convert to arrays for iteration
+        #modes_array = np.squeeze(np.array([modes]))  # convert to arrays for iteration
+        modes_array = np.array([modes])  # convert to arrays for iteration
         nmodes = len(modes_array)
         factors_array = np.multiply(factors, np.ones(nmodes))
         for i in range(nmodes):
