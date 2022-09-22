@@ -1,2 +1,0 @@
-
-generalise the iam & pcd part of generate_structures!
