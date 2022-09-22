@@ -18,6 +18,7 @@ x Z-matrix sampling
 import os
 import numpy as np
 import pandas as pd
+import scipy.io
 
 ######
 class Molecule:
@@ -56,16 +57,15 @@ class Molecule:
         natom = len(atoms)
         xyz = np.transpose(xyz)
         atoms_xyz = np.transpose(np.append([atoms], xyz, axis=0))
-        with open(fname, "w") as xyzfile:
-            np.savetxt(
-                fname,
-                atoms_xyz,
-                fmt="%s",
-                delimiter=" ",
-                header=str(natom) + "\n" + comment,
-                footer="",
-                comments="",
-            )
+        np.savetxt(
+            fname,
+            atoms_xyz,
+            fmt="%s",
+            delimiter=" ",
+            header=str(natom) + "\n" + comment,
+            footer="",
+            comments="",
+        )
         return
 
     def sort_array(self, tosort, sortbyarray):
@@ -203,13 +203,13 @@ class Normal_modes:
     def nm_displacer(self, xyz, displacements, modes, factors):
         """displace xyz along all displacements by factors array"""
         summed_displacement = np.zeros(displacements[0, :, :].shape)
-        #modes_array = np.squeeze(np.array([modes]))  # convert to arrays for iteration
-        modes_array = np.array([modes])  # convert to arrays for iteration
-        nmodes = len(modes_array)
+        if not hasattr(modes, "__len__"):   # check if it's just a single value (not an array)
+            modes = np.array([modes])  # convert to arrays for iteration
+        nmodes = len(modes)
         factors_array = np.multiply(factors, np.ones(nmodes))
         for i in range(nmodes):
             summed_displacement += (
-                displacements[modes_array[i], :, :] * factors_array[i]
+                displacements[modes[i], :, :] * factors_array[i]
             )
         displaced_xyz = self.displace_xyz(xyz, summed_displacement, 1.0)
         return displaced_xyz
@@ -477,3 +477,71 @@ class Xray:
 
 
 x = Xray()
+
+class Mil_structure_method:
+    """ functions related to the 1m structure method """
+    def __init__(self):
+        pass
+
+    def chi2_(self, N):
+        """loops over iam_array and compares to exp. outputs chi2 array"""
+        # read iam array
+        array_file = "iam_arrays_%i.npz" % N
+        f = np.load(array_file)
+        q = f["q"]
+        nq = len(q)
+        pcd = f["pcd"]
+        print(pcd.shape)
+        # load experiment pcd
+        datafile = "data/NMM_exp_dataset.mat"
+        mat = scipy.io.loadmat(datafile)
+        t_exp = mat["t"]
+        q_exp = np.squeeze(mat["q"])
+        pcd_exp = mat["iso"]
+        errors_exp = mat["iso_stdx"]
+        # chi2 loop
+        nt = len(t_exp)
+        chi2 = np.zeros((N, nt))
+        factor = 0.057
+        for t in range(nt):
+            print(t)
+            y = np.squeeze(pcd_exp[:, t])
+            for i in range(N):
+                x = factor * pcd[:, i]
+                chi2[i, t] = np.sum((x - y) ** 2)
+        chi2 /= nq  # normalise by len(q)
+        np.savez("chi2_%i.npz" % N, chi2=chi2)
+        return
+
+    def xyz_trajectory(self, directory, N):
+        """ outputs xyz trajectory based on chi2 array """
+        n_zfill = len(str(N))
+        # load chi2 file
+        chi2_file = np.load('chi2_%i.npz' % N)
+        chi2_array = chi2_file['chi2']
+        argmin_array = np.argmin(chi2_array[:, :], axis=0)
+        atoms_xyz_traj = np.empty((1, 4))
+        for j in argmin_array:
+            fname_ = '%s/%s.xyz' % (directory, str(j).zfill(n_zfill))
+            xyzheader, _, atoms, xyz = m.read_xyz(fname_)
+            natom = len(atoms)
+            xyz = np.transpose(xyz)
+            comment = str(j).zfill(n_zfill)
+            tmp = np.array([[str(natom), "", "", ""], [comment, "", "", ""]])
+            atoms_xyz = np.transpose(np.append([atoms], xyz, axis=0))
+            atoms_xyz = np.append(tmp, atoms_xyz, axis=0)
+            atoms_xyz_traj = np.append(atoms_xyz_traj, atoms_xyz, axis=0)
+        atoms_xyz_traj = atoms_xyz_traj[1:,:]  # remove 1st line of array
+        fname = 'argmin_traj_%i.xyz' % N
+        np.savetxt(
+            fname,
+            atoms_xyz_traj,
+            fmt="%s",
+            delimiter=" ",
+            header="",
+            footer="",
+            comments="",
+        )
+        return
+
+
