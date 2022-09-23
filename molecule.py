@@ -513,6 +513,26 @@ class Mil_structure_method:
         np.savez("chi2_%i.npz" % N, chi2=chi2)
         return
 
+    def chi2_arrays(self, N): 
+        """chi2 values for all combinations of IAM curve in iam_arrays.npz"""
+        # read iam array
+        array_file = 'iam_arrays_%i.npz' % N
+        f = np.load(array_file)
+        q = f['q']
+        nq = len(q)
+        data = f['iam']
+        chi2 = np.zeros((N, N))
+        for i in range(N):
+            x = data[:, i]
+            for j in range(N):
+                y = data[:, j]
+                chi2[i, j] = np.sum((x - y)**2)
+        chi2 /= nq # normalise by len(q)
+        np.save('chi2_array.npy', chi2)
+        return
+
+
+
     def xyz_trajectory(self, directory, N):
         """ outputs xyz trajectory based on chi2 array """
         n_zfill = len(str(N))
