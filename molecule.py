@@ -55,8 +55,8 @@ class Molecule:
     def write_xyz(self, fname, comment, atoms, xyz):
         """Write .xyz file"""
         natom = len(atoms)
-        xyz = np.transpose(xyz)
-        atoms_xyz = np.transpose(np.append([atoms], xyz, axis=0))
+        xyz = xyz.astype('|S10')  # convert to string array (max length 10)
+        atoms_xyz = np.append(np.transpose([atoms]), xyz, axis=1)
         np.savetxt(
             fname,
             atoms_xyz,
