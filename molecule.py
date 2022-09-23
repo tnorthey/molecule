@@ -55,7 +55,7 @@ class Molecule:
     def write_xyz(self, fname, comment, atoms, xyz):
         """Write .xyz file"""
         natom = len(atoms)
-        xyz = xyz.astype('|S10')  # convert to string array (max length 10)
+        xyz = xyz.astype("|S10")  # convert to string array (max length 10)
         atoms_xyz = np.append(np.transpose([atoms]), xyz, axis=1)
         np.savetxt(
             fname,
@@ -203,14 +203,14 @@ class Normal_modes:
     def nm_displacer(self, xyz, displacements, modes, factors):
         """displace xyz along all displacements by factors array"""
         summed_displacement = np.zeros(displacements[0, :, :].shape)
-        if not hasattr(modes, "__len__"):   # check if it's just a single value (not an array)
+        if not hasattr(
+            modes, "__len__"
+        ):  # check if it's just a single value (not an array)
             modes = np.array([modes])  # convert to arrays for iteration
         nmodes = len(modes)
         factors_array = np.multiply(factors, np.ones(nmodes))
         for i in range(nmodes):
-            summed_displacement += (
-                displacements[modes[i], :, :] * factors_array[i]
-            )
+            summed_displacement += displacements[modes[i], :, :] * factors_array[i]
         displaced_xyz = self.displace_xyz(xyz, summed_displacement, 1.0)
         return displaced_xyz
 
@@ -265,7 +265,7 @@ class Normal_modes:
             pcd_array = np.zeros((nq, nstructures))
             iam_save_bool = True
             # refence IAM curve
-            reference_xyz = 'xyz/nmm.xyz'
+            reference_xyz = "xyz/nmm.xyz"
             xyzheader, comment, atomlist, xyz = m.read_xyz(reference_xyz)
             reference_iam = x.iam_calc(atomic_numbers, xyz, qvector)
         for i in range(nstructures):
@@ -284,7 +284,7 @@ class Normal_modes:
                 dist_array[:, :, i] = m.distances_array(displaced_xyz)
             if iam_save_bool:
                 iam_array[:, i] = x.iam_calc(atomic_numbers, displaced_xyz, qvector)
-                pcd_array[:, i] = 100*(iam_array[:, i]/reference_iam - 1)
+                pcd_array[:, i] = 100 * (iam_array[:, i] / reference_iam - 1)
             fname = "%s/%s.xyz" % (directory, str(i).zfill(n_zfill))
             comment = "generated: %s" % str(i).zfill(n_zfill)
             m.write_xyz(fname, comment, atomlist, displaced_xyz)
@@ -294,7 +294,7 @@ class Normal_modes:
             np.save(outfile, dist_array)
         if iam_save_bool:
             outfile = "iam_arrays_%i.npz" % nstructures
-            print('saving %s...' % outfile)
+            print("saving %s..." % outfile)
             np.savez(outfile, q=qvector, iam=iam_array, pcd=pcd_array)
 
 
@@ -478,22 +478,24 @@ class Xray:
 
 x = Xray()
 
-class Mil_structure_method:
-    """ functions related to the 1m structure method """
+
+class Structure_pool_method:
+    """functions related to the 1m structure method"""
+
     def __init__(self):
         pass
 
-    def chi2_(self, N):
+    def chi2_(self, N, excitation_factor):
         """loops over iam_array and compares to exp. outputs chi2 array"""
         # read iam array
-        array_file = "iam_arrays_%i.npz" % N
+        array_file = "../data/iam_arrays_%i.npz" % N
         f = np.load(array_file)
         q = f["q"]
         nq = len(q)
         pcd = f["pcd"]
         print(pcd.shape)
         # load experiment pcd
-        datafile = "data/NMM_exp_dataset.mat"
+        datafile = "../data/NMM_exp_dataset.mat"
         mat = scipy.io.loadmat(datafile)
         t_exp = mat["t"]
         q_exp = np.squeeze(mat["q"])
@@ -502,47 +504,44 @@ class Mil_structure_method:
         # chi2 loop
         nt = len(t_exp)
         chi2 = np.zeros((N, nt))
-        factor = 0.057
         for t in range(nt):
             print(t)
             y = np.squeeze(pcd_exp[:, t])
             for i in range(N):
-                x = factor * pcd[:, i]
+                x = excitation_factor * pcd[:, i]
                 chi2[i, t] = np.sum((x - y) ** 2)
         chi2 /= nq  # normalise by len(q)
-        np.savez("chi2_%i.npz" % N, chi2=chi2)
+        np.savez("../data/chi2_%i.npz" % N, chi2=chi2)
         return
 
-    def chi2_arrays(self, N): 
-        """chi2 values for all combinations of IAM curve in iam_arrays.npz"""
+    def chi2_arrays(self, N):
+        """theory-theory chi2 values for all combinations of IAM curve in iam_arrays.npz"""
         # read iam array
-        array_file = 'iam_arrays_%i.npz' % N
+        array_file = "iam_arrays_%i.npz" % N
         f = np.load(array_file)
-        q = f['q']
+        q = f["q"]
         nq = len(q)
-        data = f['iam']
+        data = f["iam"]
         chi2 = np.zeros((N, N))
         for i in range(N):
             x = data[:, i]
             for j in range(N):
                 y = data[:, j]
-                chi2[i, j] = np.sum((x - y)**2)
-        chi2 /= nq # normalise by len(q)
-        np.save('chi2_array.npy', chi2)
+                chi2[i, j] = np.sum((x - y) ** 2)
+        chi2 /= nq  # normalise by len(q)
+        np.save("chi2_array.npy", chi2)
         return
 
-
-
     def xyz_trajectory(self, directory, N):
-        """ outputs xyz trajectory based on chi2 array """
+        """outputs xyz trajectory based on chi2 array"""
         n_zfill = len(str(N))
         # load chi2 file
-        chi2_file = np.load('chi2_%i.npz' % N)
-        chi2_array = chi2_file['chi2']
+        chi2_file = np.load("chi2_%i.npz" % N)
+        chi2_array = chi2_file["chi2"]
         argmin_array = np.argmin(chi2_array[:, :], axis=0)
         atoms_xyz_traj = np.empty((1, 4))
         for j in argmin_array:
-            fname_ = '%s/%s.xyz' % (directory, str(j).zfill(n_zfill))
+            fname_ = "%s/%s.xyz" % (directory, str(j).zfill(n_zfill))
             xyzheader, _, atoms, xyz = m.read_xyz(fname_)
             natom = len(atoms)
             xyz = np.transpose(xyz)
@@ -551,8 +550,8 @@ class Mil_structure_method:
             atoms_xyz = np.transpose(np.append([atoms], xyz, axis=0))
             atoms_xyz = np.append(tmp, atoms_xyz, axis=0)
             atoms_xyz_traj = np.append(atoms_xyz_traj, atoms_xyz, axis=0)
-        atoms_xyz_traj = atoms_xyz_traj[1:,:]  # remove 1st line of array
-        fname = 'argmin_traj_%i.xyz' % N
+        atoms_xyz_traj = atoms_xyz_traj[1:, :]  # remove 1st line of array
+        fname = "argmin_traj_%i.xyz" % N
         np.savetxt(
             fname,
             atoms_xyz_traj,
@@ -563,5 +562,3 @@ class Mil_structure_method:
             comments="",
         )
         return
-
-
