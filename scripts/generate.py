@@ -12,8 +12,8 @@ title = "nmm"
 # the xyz file "xyz/title.xyz" has to exist
 # and the normal mode displacements file "nm/title_normalmodes.txt"
 
-starting_xyzfile = "xyz/%s.xyz" % title
-nmfile = "nm/%s_normalmodes.txt" % title
+starting_xyzfile = "../xyz/%s.xyz" % title
+nmfile = "../nm/%s_normalmodes.txt" % title
 nmodes = 48
 #modes = list(range(0, nmodes))
 modes = list(range(0, 24))
@@ -22,7 +22,7 @@ displacement_factor = 0.2
 nstructures = int(sys.argv[1])
 option = 'normal'
 subtitle = '24modes'
-directory = "xyz/generated/%s_%s_%i" % (title, subtitle, nstructures)
+directory = "../xyz/generated/%s_%s_%i" % (title, subtitle, nstructures)
 os.makedirs(directory, exist_ok=True)  # create directory if doesn't exist
 dist_arrays = True
 iam_arrays = True
