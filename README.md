@@ -15,6 +15,12 @@ install requirements
 To exit the venv,
 ```deactivate```
 
+Add full path of base directory to the python path (so scripts work correctly), 
+create a .pth file in this directory containing the full path e.g.,
+```
+echo "/home/thomas/molecule" > .venv/lib/python3.8/site-packages/fullpath.pth"
+```
+
 It uses pytest (unit tests are in `test_functions.py`).
 ```pytest -v```
 to confirm all tests pass.
