@@ -431,18 +431,18 @@ class Xray:
         """calculate IAM molecular scattering curve for atoms, xyz, qvector"""
         natom = len(atomic_numbers)
         qlen = len(qvector)
-        atomic = np.zeros(qlen)
-        molecular = np.zeros(qlen)
-        af = np.zeros((natom, qlen))
+        atomic = np.zeros(qlen)  # total atomic factor
+        molecular = np.zeros(qlen)  # total molecular factor
+        af_array = np.zeros((natom, qlen))  # array of atomic factors
         for i in range(natom):
             tmp = self.atomic_factor(atomic_numbers[i], qvector)
-            af[i, :] = tmp
+            af_array[i, :] = tmp
             atomic += tmp**2
         for i in range(natom):
             for j in range(i + 1, natom):  # j > i
                 molecular += (
                     2
-                    * np.multiply(atomic_fact[i, :], atomic_fact[j, :])
+                    * np.multiply(af_array[i, :], af_array[j, :])
                     * np.sinc(qvector * np.linalg.norm(xyz[i, :] - xyz[j, :]) / np.pi)
                 )
         iam = atomic + molecular
