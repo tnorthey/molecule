@@ -217,13 +217,13 @@ class Normal_modes:
     def animate_mode(self, mode, xyz_start_file, nmfile, natoms):
         """make xyz file animation along normal mode"""
         displacements = self.read_nm_displacements(nmfile, natoms)
-        a = 0.4
+        a = 2.5
         factor = np.linspace(-a, a, 20, endpoint=True)
         factor = np.append(factor, np.linspace(a, -a, 20, endpoint=True))
         _, _, atoms, xyz_start = m.read_xyz(xyz_start_file)
         for k in range(len(factor)):
             xyz = self.nm_displacer(xyz_start, displacements, mode, factor[k])
-            xyzfile_out = "animate/mode%i_%s.xyz" % (mode, str(k).zfill(2))
+            xyzfile_out = "../animate/mode%i_%s.xyz" % (mode, str(k).zfill(2))
             m.write_xyz(xyzfile_out, str(factor[k]), atoms, xyz)
 
     def generate_structures(
@@ -409,7 +409,7 @@ class Xray:
         atomfactor += cc[atom_number - 1]
         return atomfactor
 
-    def iam_calc(self, atomic_numbers, xyz, qvector):
+    def iam_calc_slow(self, atomic_numbers, xyz, qvector):
         """calculate IAM molecular scattering curve for atoms, xyz, qvector"""
         natom = len(atomic_numbers)
         qlen = len(qvector)
@@ -425,6 +425,29 @@ class Xray:
                 dist = np.linalg.norm(xyz[i, :] - xyz[j, :])
                 molecular += 2 * fij * np.sinc(qvector * dist / np.pi)
         iam = atomic + molecular
+        print(iam[-1])
+        return iam
+
+    def iam_calc(self, atomic_numbers, xyz, qvector):
+        """calculate IAM molecular scattering curve for atoms, xyz, qvector"""
+        natom = len(atomic_numbers)
+        qlen = len(qvector)
+        atomic = np.zeros(qlen)
+        molecular = np.zeros(qlen)
+        atomic_fact = np.zeros((natom, qlen))
+        for i in range(natom):
+            atomic_fact[i, :] = self.atomic_factor(atomic_numbers[i], qvector)
+        for i in range(natom):
+            atomic += atomic_fact[i, :] ** 2
+            for j in range(i + 1, natom):  # j > i
+                fij = np.multiply(
+                        atomic_fact[i, :],
+                        atomic_fact[j, :],
+                )
+                dist = np.linalg.norm(xyz[i, :] - xyz[j, :])
+                molecular += 2 * fij * np.sinc(qvector * dist / np.pi)
+        iam = atomic + molecular
+        print(iam[-1])
         return iam
 
     def iam_duplicate_search(
