@@ -4,12 +4,69 @@
 \usepackage{caption}
 \usepackage{subcaption}
 
-\title{1 million structure method for photoelectron spectra:\ restricted normal mode sampling, and Dyson orbital transitions}
+\title{title}
 \author{T.\ Northey}
 \begin{document}
 \begin{frame}[plain]
     \maketitle
 \end{frame}
+
+\begin{frame}{Defining structure pool parameters}
+\begin{center}
+	{\huge$\mu$}\qquad\qquad{\huge$\sigma_i$}\\
+	\vspace{2cm}
+	{\huge$\rho$}
+\end{center}
+\end{frame}
+
+\begin{frame}{Defining structure pool parameters}
+	\begin{center}
+
+	\end{center}
+\end{frame}
+
+\begin{frame}{Defining structure pool parameters}
+		\begin{center}
+	{\huge$\mu=0$, e.g.\ $\textbf{R}_0$}
+		\end{center}
+	
+	[picture of potential energy curve along a bond-distance, + bell curve vibrational distribution]
+	
+	[and picture of $\mu\neq 0$ situation, shifted bell curve]
+\end{frame}
+
+\begin{frame}{Defining structure pool parameters}
+		\begin{center}
+	$\sigma=\begin{pmatrix}
+	0.4 \\
+	0.2\\
+	0.2\\
+	\vdots\\
+	0.2
+	\end{pmatrix}
+	$ \AA
+		\end{center}
+	
+	\begin{itemize}
+		\item some displacements more important than others
+		\item some could be irrelevant $\sigma_i = 0$ (i.e.\ don't displace at all)
+	\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Defining structure pool parameters}
+		\begin{center}
+	\qquad\qquad\qquad\ \ \ {\huge$\rho\propto\textrm{accuracy / resolution}$}\\
+		\vspace{2mm}
+	{\huge$\propto N$}\\
+		\vspace{2mm}
+	\quad\ \ {\huge$\propto 1/\sigma_i$}\\
+	%\qquad\qquad\qquad\ \ {\huge$\propto 1/n_{\textrm{modes}}$}\\
+
+		\end{center}
+
+\end{frame}
+
 \begin{frame}{NMM previous work}
 	\begin{figure}[H]
 	\centering
@@ -20,22 +77,6 @@
 	
 \end{frame}
 
-\begin{frame}
-	\begin{enumerate}
-		\item Chlorobenzene has 30 normal modes
-		\item Sampling over a selection of 16 `heavy atom' modes effectively clamps the C$-$H bonds (fig.\ \ref{fig:ch_hist}) while keeping the other distances similar (above figures)
-		\item Doing this slightly restrains the C$-$C bonds (fig.\ \ref{fig:c1c2_hist}), but only by a difference in fwhm $\simeq$ 0.02 \AA.
-		\item I used a sample size of 10,000 molecular structures for the above figures.
-	\end{enumerate}
-\end{frame}
-
-\begin{frame}{Chlorobenzene normal mode sampling, vary sample size $N$}
-
-\begin{itemize}
-	\item From bond-distances statistics, it seems that $N=1000$ and $N=10000$ agree relatively closely. $N=10000$ gives a smoother bell curve distribution for inter-atomic distances.
-	\item These samples were generated using all normal modes.
-\end{itemize}
-\end{frame}
 
 \begin{frame}{Sampling method}
 The sampling equation for generating the displaced molecular coordinates is,
@@ -47,8 +88,5 @@ The sampling equation for generating the displaced molecular coordinates is,
 with starting geometry $\textbf{R}_0$, and displacement unit vectors $\textbf{d}_i$ for each normal mode are obtained from a frequency calculation.  The factors $a_i$ are randomly generated within a bell curve centered at $\mu=0$, and chosen standard deviation, $\sigma$. 
 \end{frame}
 
-\begin{frame}{Chlorobenzene Dyson transitions}
-
-\end{frame}
 
 \end{document}

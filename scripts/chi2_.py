@@ -8,4 +8,5 @@ sp = molecule.Structure_pool_method()
 N = int(sys.argv[1])
 excitation_factor = 0.057
 
-sp.chi2_(N, excitation_factor)
+iam_array_file = "iam_arrays_24modes_100000.npz"
+sp.chi2_(iam_array_file, N, excitation_factor)

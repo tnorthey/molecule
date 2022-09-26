@@ -1,7 +1,8 @@
 import molecule
 
-ms = molecule.Mil_structure_method()
+ms = molecule.Structure_pool_method()
 
-N = 10000
-directory = 'xyz/generated/nmm_24modes_%i' % N
-ms.xyz_trajectory(directory, N)
+N = 100000
+directory = '../xyz/generated/nmm_24modes_%i' % N
+chi2_file = 'chi2_100000_24modes.npz'
+ms.xyz_trajectory(directory, chi2_file, N)

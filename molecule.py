@@ -250,6 +250,7 @@ class Normal_modes:
             linear_dist, normal_dist = True, False
         elif option == "normal":
             linear_dist, normal_dist = False, True
+        dist_save_bool, iam_save_bool = False, False
         # generate random structures
         n_zfill = len(str(nstructures))
         if dist_arrays:
@@ -485,10 +486,10 @@ class Structure_pool_method:
     def __init__(self):
         pass
 
-    def chi2_(self, N, excitation_factor):
+    def chi2_(self, iam_array_file, N, excitation_factor):
         """loops over iam_array and compares to exp. outputs chi2 array"""
         # read iam array
-        array_file = "../data/iam_arrays_%i.npz" % N
+        array_file = "../data/%s" % iam_array_file
         f = np.load(array_file)
         q = f["q"]
         nq = len(q)
@@ -532,16 +533,16 @@ class Structure_pool_method:
         np.save("chi2_array.npy", chi2)
         return
 
-    def xyz_trajectory(self, directory, N):
+    def xyz_trajectory(self, xyz_directory, chi2_file, N):
         """outputs xyz trajectory based on chi2 array"""
         n_zfill = len(str(N))
         # load chi2 file
-        chi2_file = np.load("chi2_%i.npz" % N)
+        chi2_file = np.load("../data/%s" % chi2_file)
         chi2_array = chi2_file["chi2"]
         argmin_array = np.argmin(chi2_array[:, :], axis=0)
         atoms_xyz_traj = np.empty((1, 4))
         for j in argmin_array:
-            fname_ = "%s/%s.xyz" % (directory, str(j).zfill(n_zfill))
+            fname_ = "%s/%s.xyz" % (xyz_directory, str(j).zfill(n_zfill))
             xyzheader, _, atoms, xyz = m.read_xyz(fname_)
             natom = len(atoms)
             xyz = np.transpose(xyz)
