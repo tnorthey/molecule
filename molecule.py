@@ -425,7 +425,6 @@ class Xray:
                 dist = np.linalg.norm(xyz[i, :] - xyz[j, :])
                 molecular += 2 * fij * np.sinc(qvector * dist / np.pi)
         iam = atomic + molecular
-        print(iam[-1])
         return iam
 
     def iam_calc(self, atomic_numbers, xyz, qvector):
@@ -434,20 +433,19 @@ class Xray:
         qlen = len(qvector)
         atomic = np.zeros(qlen)
         molecular = np.zeros(qlen)
-        atomic_fact = np.zeros((natom, qlen))
+        af = np.zeros((natom, qlen))
         for i in range(natom):
-            atomic_fact[i, :] = self.atomic_factor(atomic_numbers[i], qvector)
+            tmp = self.atomic_factor(atomic_numbers[i], qvector)
+            af[i, :] = tmp
+            atomic += tmp**2
         for i in range(natom):
-            atomic += atomic_fact[i, :] ** 2
             for j in range(i + 1, natom):  # j > i
-                fij = np.multiply(
-                        atomic_fact[i, :],
-                        atomic_fact[j, :],
+                molecular += (
+                    2
+                    * np.multiply(atomic_fact[i, :], atomic_fact[j, :])
+                    * np.sinc(qvector * np.linalg.norm(xyz[i, :] - xyz[j, :]) / np.pi)
                 )
-                dist = np.linalg.norm(xyz[i, :] - xyz[j, :])
-                molecular += 2 * fij * np.sinc(qvector * dist / np.pi)
         iam = atomic + molecular
-        print(iam[-1])
         return iam
 
     def iam_duplicate_search(
