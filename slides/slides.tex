@@ -4,11 +4,63 @@
 \usepackage{caption}
 \usepackage{subcaption}
 
-\title{title}
+\title{1m structure method: time-resolved x-ray scattering and photoelectron spectroscopy}
 \author{T.\ Northey}
+\date{4 Oct 2022 group meeting}
 \begin{document}
 \begin{frame}[plain]
     \maketitle
+\end{frame}
+
+\begin{frame}
+	% start the columns environment    
+	\begin{columns} 
+		% Column 1
+		\begin{column}{.4\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_geometry.png}
+				\caption{NMM geometry, and experimental setup.}
+				\label{fig:nmm-geom}
+			\end{figure}
+		\begin{itemize}
+			
+			\item 107 surface hopping trajectories (1000 fs), $\sim$$10^6$ molecular geometries 
+			
+		\end{itemize}
+		{\tiny B.\ Stankus, et al.\ Nature Chem.\ 11.8 (2019):\ 716-721.}
+		\end{column}
+		% Column 2    
+		\begin{column}{.6\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=0.7\textwidth]{stankus_angle_plots.png}
+				\caption{Time-dependent angle plots
+					following Rydberg excitation.}
+				\label{fig:nmm-geom}
+			\end{figure}
+		\end{column}%
+		
+	\end{columns}
+\end{frame}
+
+\begin{frame}
+	% start the columns environment    
+	\begin{columns} 
+		% Column 1
+		\begin{column}{.5\textwidth}
+			\begin{itemize}
+
+				\item 107 surface hopping trajectories (1,000 fs), giving $\sim$$10^6$ molecular geometries 
+				
+			\end{itemize}
+		\end{column}
+		% Column 2    
+		\begin{column}{.5\textwidth}
+
+		\end{column}%
+		
+	\end{columns}
 \end{frame}
 
 \begin{frame}{Defining structure pool parameters}
@@ -69,12 +121,27 @@
 
 \begin{frame}{NMM previous work}
 	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.6\textwidth]{NMM_exp_2Dplot.png}
+		\caption{Time-resolved x-ray scattering percent difference signal for NMM.}
+		\label{fig:nmm-2dplot}
+	\end{figure}
+\vspace{-5mm}
+	\begin{itemize}
+		\item $q = [0.33, 4.37] $ \AA$^{-1}$, (with 39 $q$-bins)
+		\item Excitation percentage, 5.7\%
+		\item Maximum signal difference $\simeq 1\%$
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{NMM previous work}
+	\begin{figure}[H]
 	\centering
 		\includegraphics[width=\textwidth]{geomovie_ppt_slide.png}
-		\caption{N-C-O angle of best fit to experiment trajectory.}
+		\caption{N-C-O angle, best fit to experiment x-ray data.}
 		\label{fig:geomovie-ppt-slide}
 	\end{figure}
-	
+
 \end{frame}
 
 

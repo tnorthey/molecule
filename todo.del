@@ -1,0 +1,18 @@
+
+my own C-N-O angle code: apply to geommovie, argmin_traj etc.
+
+0.5, 1, 2m convergence
+best chi2 definition
+
+0.5, 1, 2m all modes
+
+example: iterate along mode 0
+example: iterate along mode 1
+example: iterate along mode 48 (a few H-only modes)
+etc.
+
+test: only mode 0, N=1000 
+
+(maybe) rerun with larger amplitute along mode 0
+
+

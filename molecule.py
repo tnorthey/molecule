@@ -231,7 +231,7 @@ class Normal_modes:
         starting_xyzfile,
         nmfile,
         modes,
-        displacement_factor,
+        displacement_factors,
         nstructures,
         option,
         directory,
@@ -242,15 +242,15 @@ class Normal_modes:
         nmodes = len(modes)
         xyzheader, comment, atomlist, xyz = m.read_xyz(starting_xyzfile)
         natoms = len(atomlist)
-        # starting coordinates
-        a = displacement_factor
         # read normal modes
         displacements = self.read_nm_displacements(nmfile, natoms)
+        displaced_xyz_array = np.zeros((natoms, 3, nstructures))
         if option == "linear":
             linear_dist, normal_dist = True, False
         elif option == "normal":
             linear_dist, normal_dist = False, True
         dist_save_bool, iam_save_bool = False, False
+        write_xyz_files = True
         # generate random structures
         n_zfill = len(str(nstructures))
         if dist_arrays:
@@ -272,29 +272,34 @@ class Normal_modes:
         for i in range(nstructures):
             print(i)
             if linear_dist:
+                a = displacement_factors[0]  # not finished...
                 factors = (
                     np.random.rand(nmodes) * 2 * a - a
                 )  # random factors in range [-a, a]
             elif normal_dist:
-                mu, sigma = 0, a  # mean and standard deviation
+                mu, sigma = 0, displacement_factors  # mean and standard deviation
                 factors = np.random.normal(
                     mu, sigma, nmodes
                 )  # random factors in normal distribution with standard deviation = a
             displaced_xyz = self.nm_displacer(xyz, displacements, modes, factors)
+            displaced_xyz_array[:, :, i] = displaced_xyz
             if dist_save_bool:
                 dist_array[:, :, i] = m.distances_array(displaced_xyz)
             if iam_save_bool:
                 iam_array[:, i] = x.iam_calc(atomic_numbers, displaced_xyz, qvector)
                 pcd_array[:, i] = 100 * (iam_array[:, i] / reference_iam - 1)
-            fname = "%s/%s.xyz" % (directory, str(i).zfill(n_zfill))
-            comment = "generated: %s" % str(i).zfill(n_zfill)
-            m.write_xyz(fname, comment, atomlist, displaced_xyz)
+            if write_xyz_files:
+                fname = "%s/%s.xyz" % (directory, str(i).zfill(n_zfill))
+                comment = "generated: %s" % str(i).zfill(n_zfill)
+                m.write_xyz(fname, comment, atomlist, displaced_xyz)
         # file saves
+        outfile = "data/xyz_array_%i" % nstructures
+        np.savez(outfile, xyz=displaced_xyz_array)
         if dist_save_bool:
-            outfile = "distances_%i.npy" % nstructures
+            outfile = "data/distances_%i.npy" % nstructures
             np.save(outfile, dist_array)
         if iam_save_bool:
-            outfile = "iam_arrays_%i.npz" % nstructures
+            outfile = "data/iam_arrays_%i.npz" % nstructures
             print("saving %s..." % outfile)
             np.savez(outfile, q=qvector, iam=iam_array, pcd=pcd_array)
 
@@ -510,14 +515,14 @@ class Structure_pool_method:
     def chi2_(self, iam_array_file, N, excitation_factor):
         """loops over iam_array and compares to exp. outputs chi2 array"""
         # read iam array
-        array_file = "../data/%s" % iam_array_file
+        array_file = "data/%s" % iam_array_file
         f = np.load(array_file)
         q = f["q"]
         nq = len(q)
         pcd = f["pcd"]
         print(pcd.shape)
         # load experiment pcd
-        datafile = "../data/NMM_exp_dataset.mat"
+        datafile = "data/NMM_exp_dataset.mat"
         mat = scipy.io.loadmat(datafile)
         t_exp = mat["t"]
         q_exp = np.squeeze(mat["q"])
@@ -529,11 +534,14 @@ class Structure_pool_method:
         for t in range(nt):
             print(t)
             y = np.squeeze(pcd_exp[:, t])
+            errors = np.squeeze(errors_exp[:, t])
             for i in range(N):
                 x = excitation_factor * pcd[:, i]
+                #chi2[i, t] = np.sum(((x - y) / errors) ** 2)
+                # chi2[i, t] = np.sum(((x - y) / y) ** 2 )
                 chi2[i, t] = np.sum((x - y) ** 2)
         chi2 /= nq  # normalise by len(q)
-        np.savez("../data/chi2_%i.npz" % N, chi2=chi2)
+        np.savez("data/chi2_%i.npz" % N, chi2=chi2)
         return
 
     def chi2_arrays(self, N):
@@ -554,26 +562,27 @@ class Structure_pool_method:
         np.save("chi2_array.npy", chi2)
         return
 
-    def xyz_trajectory(self, xyz_directory, chi2_file, N):
+    def xyz_trajectory(self, atoms, xyz_array_file, chi2_file, N):
         """outputs xyz trajectory based on chi2 array"""
         n_zfill = len(str(N))
+        natom = len(atoms)
         # load chi2 file
-        chi2_file = np.load("../data/%s" % chi2_file)
+        chi2_file = np.load("data/%s" % chi2_file)
         chi2_array = chi2_file["chi2"]
         argmin_array = np.argmin(chi2_array[:, :], axis=0)
         atoms_xyz_traj = np.empty((1, 4))
+        # load xyz array
+        xyz_array = np.load('data/%s' % xyz_array_file)['xyz']
         for j in argmin_array:
-            fname_ = "%s/%s.xyz" % (xyz_directory, str(j).zfill(n_zfill))
-            xyzheader, _, atoms, xyz = m.read_xyz(fname_)
-            natom = len(atoms)
-            xyz = np.transpose(xyz)
+            xyz = xyz_array[:, :, j]
+            xyz = xyz.astype("|S10")  # convert to string array (max length 10)
             comment = str(j).zfill(n_zfill)
             tmp = np.array([[str(natom), "", "", ""], [comment, "", "", ""]])
-            atoms_xyz = np.transpose(np.append([atoms], xyz, axis=0))
+            atoms_xyz = np.append(np.transpose([atoms]), xyz, axis=1)
             atoms_xyz = np.append(tmp, atoms_xyz, axis=0)
             atoms_xyz_traj = np.append(atoms_xyz_traj, atoms_xyz, axis=0)
         atoms_xyz_traj = atoms_xyz_traj[1:, :]  # remove 1st line of array
-        fname = "argmin_traj_%i.xyz" % N
+        fname = "data/argmin_traj_%i.xyz" % N
         np.savetxt(
             fname,
             atoms_xyz_traj,
