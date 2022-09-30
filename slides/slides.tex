@@ -44,23 +44,49 @@
 	\end{columns}
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Goal}
 	% start the columns environment    
 	\begin{columns} 
 		% Column 1
 		\begin{column}{.5\textwidth}
 			\begin{itemize}
 
-				\item 107 surface hopping trajectories (1,000 fs), giving $\sim$$10^6$ molecular geometries 
+				\item I want to avoid using quantum dynamics, e.g.\ Wigner distribution
+				\item but I know that won't work for this system as it involves large motion of methyl group angle
+				\item (it moves outside the bell curve around the ground state FC geometry)
 				
 			\end{itemize}
 		\end{column}
 		% Column 2    
 		\begin{column}{.5\textwidth}
-
+			\begin{itemize}
+				\item `modified' Wigner dist.
+				\item becomes not a black box solution, we need to look at how the motions along each of the $3N-6$ degree of freedoms individually affect the x-ray scattering signal...
+				\item An alternative could be sum of multiple Wigner distributions on the expected electronically excited states' stationary points
+			\end{itemize}
 		\end{column}%
 		
 	\end{columns}
+\end{frame}
+
+\begin{frame}
+	\begin{figure}
+		\centering
+	\begin{subfigure}[b]{0.5\textwidth}
+		\centering
+		% left, bottom, right, top
+		\includegraphics[width=\textwidth, trim= 80 10 58 70, clip]{multi_wigner.png}
+		\caption{Option 1.}
+		\label{fig:nmm-2dplot}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.5\textwidth}
+		\centering
+		% left, bottom, right, top
+		\includegraphics[width=\textwidth, trim= 80 10 58 70, clip]{modified_wigner.png}
+		\caption{Option 2.}
+		\label{fig:nmm-2dplot}
+	\end{subfigure}
+	\end{figure}
 \end{frame}
 
 \begin{frame}{Defining structure pool parameters}
@@ -144,6 +170,1758 @@
 
 \end{frame}
 
+\newcommand\m{0}
+\newcommand\w{0.32}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+			\label{fig:}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+			\label{fig:}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+			\label{fig:}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+			\label{fig:}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+			\label{fig:}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+			\label{fig:}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{1}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{2}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{3}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{4}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{5}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{7}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{8}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{9}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{10}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{11}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{12}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{13}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{14}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{15}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{16}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{17}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{18}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{19}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{20}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{21}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{22}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{23}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{24}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{25}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{26}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{27}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{28}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{29}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{30}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{31}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{32}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{33}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{34}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{35}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{36}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{37}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{38}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{39}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{40}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{41}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{42}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{43}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{44}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{45}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{46}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\renewcommand\m{47}
+\begin{frame}{mode \m}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/100_mode\m_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\begin{frame}
+	\begin{itemize}
+		\item v.\ strongly fitting modes, $\langle\chi^2\rangle(t = 1 \textrm{ps}) < 0.07$: $14,18,28,38$
+		\item strongly fitting modes, $\langle\chi^2\rangle(t = 1 \textrm{ps}) < 0.12$: $0,5,9,11,12,13,14,15,18,20,23,24,28,30,37,38,39,47$
+	\end{itemize}
+\end{frame}
 
 \begin{frame}{Sampling method}
 The sampling equation for generating the displaced molecular coordinates is,

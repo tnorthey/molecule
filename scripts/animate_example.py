@@ -4,6 +4,8 @@ import molecule
 m = molecule.Molecule()
 nm = molecule.Normal_modes()
 
+factor = 0.2
+
 xyz_start_file = "../xyz/nmm.xyz"
 nmfile = "../nm/nmm_normalmodes.txt"
 natoms = 18
@@ -58,4 +60,4 @@ modes = [
     47,
 ]
 for i in range(len(modes)):
-    nm.animate_mode(modes[i], xyz_start_file, nmfile, natoms)
+    nm.animate_mode(modes[i], xyz_start_file, nmfile, natoms, factor)

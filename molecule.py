@@ -214,10 +214,10 @@ class Normal_modes:
         displaced_xyz = self.displace_xyz(xyz, summed_displacement, 1.0)
         return displaced_xyz
 
-    def animate_mode(self, mode, xyz_start_file, nmfile, natoms):
+    def animate_mode(self, mode, xyz_start_file, nmfile, natoms, factor):
         """make xyz file animation along normal mode"""
         displacements = self.read_nm_displacements(nmfile, natoms)
-        a = 2.5
+        a = factor
         factor = np.linspace(-a, a, 20, endpoint=True)
         factor = np.append(factor, np.linspace(a, -a, 20, endpoint=True))
         _, _, atoms, xyz_start = m.read_xyz(xyz_start_file)
@@ -237,6 +237,7 @@ class Normal_modes:
         directory,
         dist_arrays,
         iam_arrays,
+        subtitle
     ):
         """generate xyz files by normal mode displacements"""
         nmodes = len(modes)
@@ -293,13 +294,13 @@ class Normal_modes:
                 comment = "generated: %s" % str(i).zfill(n_zfill)
                 m.write_xyz(fname, comment, atomlist, displaced_xyz)
         # file saves
-        outfile = "data/xyz_array_%i" % nstructures
+        outfile = "data/xyz_array_%i_%s" % (nstructures, subtitle)
         np.savez(outfile, xyz=displaced_xyz_array)
         if dist_save_bool:
-            outfile = "data/distances_%i.npy" % nstructures
+            outfile = "data/distances_%i_%s.npy" % (nstructures, subtitle)
             np.save(outfile, dist_array)
         if iam_save_bool:
-            outfile = "data/iam_arrays_%i.npz" % nstructures
+            outfile = "data/iam_arrays_%i_%s.npz" % (nstructures, subtitle)
             print("saving %s..." % outfile)
             np.savez(outfile, q=qvector, iam=iam_array, pcd=pcd_array)
 
@@ -512,11 +513,12 @@ class Structure_pool_method:
     def __init__(self):
         pass
 
-    def chi2_(self, iam_array_file, N, excitation_factor):
+    def chi2_(self, iam_array_file, N, excitation_factor, subtitle):
         """loops over iam_array and compares to exp. outputs chi2 array"""
         # read iam array
         array_file = "data/%s" % iam_array_file
-        f = np.load(array_file)
+        print('reading %s...' % array_file)
+        f = np.load(array_file, allow_pickle=True)
         q = f["q"]
         nq = len(q)
         pcd = f["pcd"]
@@ -528,8 +530,20 @@ class Structure_pool_method:
         q_exp = np.squeeze(mat["q"])
         pcd_exp = mat["iso"]
         errors_exp = mat["iso_stdx"]
-        # chi2 loop
+        # optionally "clean up" data
+        pre_t0_bool, combine_bool = True, False
+        if pre_t0_bool:
+            i_pre_t0 = 13
+            t_exp = t_exp[i_pre_t0:]  # remove before t = 0
+            pcd_exp = pcd_exp[:, i_pre_t0:]
+        if combine_bool:
+            # also combine every 2nd lineout
+            t_exp = t_exp[0::2]
+            pcd_exp = 0.5 * (pcd_exp[:, 0::2] + pcd_exp[:, 1::2])
+        print(len(t_exp))
+        print(pcd_exp.shape)
         nt = len(t_exp)
+        # chi2 loop
         chi2 = np.zeros((N, nt))
         for t in range(nt):
             print(t)
@@ -541,7 +555,7 @@ class Structure_pool_method:
                 # chi2[i, t] = np.sum(((x - y) / y) ** 2 )
                 chi2[i, t] = np.sum((x - y) ** 2)
         chi2 /= nq  # normalise by len(q)
-        np.savez("data/chi2_%i.npz" % N, chi2=chi2)
+        np.savez("data/chi2_%i_%s.npz" % (N, subtitle), chi2=chi2)
         return
 
     def chi2_arrays(self, N):
@@ -562,7 +576,7 @@ class Structure_pool_method:
         np.save("chi2_array.npy", chi2)
         return
 
-    def xyz_trajectory(self, atoms, xyz_array_file, chi2_file, N):
+    def xyz_trajectory(self, atoms, xyz_array_file, chi2_file, N, subtitle):
         """outputs xyz trajectory based on chi2 array"""
         n_zfill = len(str(N))
         natom = len(atoms)
@@ -572,7 +586,7 @@ class Structure_pool_method:
         argmin_array = np.argmin(chi2_array[:, :], axis=0)
         atoms_xyz_traj = np.empty((1, 4))
         # load xyz array
-        xyz_array = np.load('data/%s' % xyz_array_file)['xyz']
+        xyz_array = np.load("data/%s" % xyz_array_file)["xyz"]
         for j in argmin_array:
             xyz = xyz_array[:, :, j]
             xyz = xyz.astype("|S10")  # convert to string array (max length 10)
@@ -582,7 +596,8 @@ class Structure_pool_method:
             atoms_xyz = np.append(tmp, atoms_xyz, axis=0)
             atoms_xyz_traj = np.append(atoms_xyz_traj, atoms_xyz, axis=0)
         atoms_xyz_traj = atoms_xyz_traj[1:, :]  # remove 1st line of array
-        fname = "data/argmin_traj_%i.xyz" % N
+        fname = "data/argmin_traj_%i_%s.xyz" % (N, subtitle)
+        print('writing %s...' % fname)
         np.savetxt(
             fname,
             atoms_xyz_traj,
