@@ -44,6 +44,38 @@
 	\end{columns}
 \end{frame}
 
+\begin{frame}
+	% start the columns environment    
+	\begin{columns} 
+		% Column 1
+		\begin{column}{.4\textwidth}
+	\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{NMM_exp_2Dplot.png}
+	\caption{Time-resolved x-ray scattering percent difference signal for NMM.}
+	\label{fig:nmm-2dplot}
+\end{figure}
+\vspace{-5mm}
+\begin{itemize}
+	\item $q = [0.33, 4.37] $ \AA$^{-1}$, (with 39 $q$-bins)
+	\item Excitation percentage, 5.7\%
+	\item Maximum signal difference $\simeq 1\%$
+\end{itemize}
+		\end{column}
+		% Column 2    
+		\begin{column}{.6\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=0.7\textwidth]{stankus_angle_plots.png}
+				\caption{Time-dependent angle plots
+					following Rydberg excitation.}
+				\label{fig:nmm-geom}
+			\end{figure}
+		\end{column}%
+		
+	\end{columns}
+\end{frame}
+
 \begin{frame}{Goal}
 	% start the columns environment    
 	\begin{columns} 
@@ -98,7 +130,7 @@
 \end{frame}
 
 \begin{frame}{NMM normal modes}
-	\newcommand{\x}{0.15}
+	\newcommand{\x}{0.18}
 	\begin{figure}
 		\centering
 		\begin{subfigure}{\x\textwidth}
@@ -142,6 +174,7 @@
 			\caption{mode 9: ``breathing"}
 		\end{subfigure}
 	\end{figure}
+$\dots (3N - 6 = 48)$
 \end{frame}
 
 \begin{frame}{Defining structure pool parameters}
@@ -187,25 +220,19 @@
 		\vspace{2mm}
 	\quad\ \ {\huge$\propto 1/\sigma_i$}\\
 	%\qquad\qquad\qquad\ \ {\huge$\propto 1/n_{\textrm{modes}}$}\\
-
 		\end{center}
-
 \end{frame}
 
-\begin{frame}{NMM previous work}
-	\begin{figure}[H]
-		\centering
-		\includegraphics[width=0.6\textwidth]{NMM_exp_2Dplot.png}
-		\caption{Time-resolved x-ray scattering percent difference signal for NMM.}
-		\label{fig:nmm-2dplot}
-	\end{figure}
-\vspace{-5mm}
-	\begin{itemize}
-		\item $q = [0.33, 4.37] $ \AA$^{-1}$, (with 39 $q$-bins)
-		\item Excitation percentage, 5.7\%
-		\item Maximum signal difference $\simeq 1\%$
-	\end{itemize}
+\begin{frame}{Sampling method}
+	The sampling equation for generating the displaced molecular coordinates is,
+	
+	\begin{eqnarray}
+	\textbf{R} = \textbf{R}_0 + \sum_i^{\textrm{modes}} a_i\textbf{d}_i
+	\end{eqnarray}
+	
+	with starting geometry $\textbf{R}_0$, and displacement unit vectors $\textbf{d}_i$ for each normal mode are obtained from a frequency calculation.  The factors $a_i$ are randomly generated within a bell curve centered at $\mu=0$, and chosen standard deviation, $\sigma_i$. 
 \end{frame}
+
 
 \begin{frame}{NMM previous work}
 	\begin{figure}[H]
@@ -219,13 +246,14 @@
 
 %%% mode slides
 
-%\iffalse
-\iftrue
-
 \newcommand\m{0}
 \newcommand\w{0.32}
 \newcommand{\molwidth}{0.1}
 \newcommand{\vh}{-10}
+
+%\iffalse
+\iftrue
+
 \begin{frame}{mode \m}
 	\vspace{\vh mm}
 	\begin{figure}
@@ -658,6 +686,11 @@
 
 \renewcommand\m{10}
 \begin{frame}{mode \m}
+		\vspace{\vh mm}
+	\begin{figure}
+		\centering
+		\includegraphics[width=\molwidth\textwidth]{mode\m_ot.png}
+	\end{figure}
 	\begin{figure}
 		\centering
 		\begin{subfigure}[b]{\w\textwidth}
@@ -695,6 +728,11 @@
 
 \renewcommand\m{11}
 \begin{frame}{mode \m}
+		\vspace{\vh mm}
+	\begin{figure}
+		\centering
+		\includegraphics[width=\molwidth\textwidth]{mode\m_ot.png}
+	\end{figure}
 	\begin{figure}
 		\centering
 		\begin{subfigure}[b]{\w\textwidth}
@@ -732,6 +770,11 @@
 
 \renewcommand\m{12}
 \begin{frame}{mode \m}
+		\vspace{\vh mm}
+	\begin{figure}
+		\centering
+		\includegraphics[width=\molwidth\textwidth]{mode\m_ot.png}
+	\end{figure}
 	\begin{figure}
 		\centering
 		\begin{subfigure}[b]{\w\textwidth}
@@ -769,6 +812,11 @@
 
 \renewcommand\m{13}
 \begin{frame}{mode \m}
+		\vspace{\vh mm}
+	\begin{figure}
+		\centering
+		\includegraphics[width=\molwidth\textwidth]{mode\m_ot.png}
+	\end{figure}
 	\begin{figure}
 		\centering
 		\begin{subfigure}[b]{\w\textwidth}
@@ -806,6 +854,11 @@
 
 \renewcommand\m{14}
 \begin{frame}{mode \m}
+		\vspace{\vh mm}
+	\begin{figure}
+		\centering
+		\includegraphics[width=\molwidth\textwidth]{mode\m_ot.png}
+	\end{figure}
 	\begin{figure}
 		\centering
 		\begin{subfigure}[b]{\w\textwidth}
@@ -843,6 +896,11 @@
 
 \renewcommand\m{15}
 \begin{frame}{mode \m}
+			\vspace{\vh mm}
+	\begin{figure}
+		\centering
+		\includegraphics[width=\molwidth\textwidth]{mode\m_ot.png}
+	\end{figure}
 	\begin{figure}
 		\centering
 		\begin{subfigure}[b]{\w\textwidth}
@@ -880,6 +938,11 @@
 
 \renewcommand\m{16}
 \begin{frame}{mode \m}
+			\vspace{\vh mm}
+	\begin{figure}
+		\centering
+		\includegraphics[width=\molwidth\textwidth]{mode\m_ot.png}
+	\end{figure}
 	\begin{figure}
 		\centering
 		\begin{subfigure}[b]{\w\textwidth}
@@ -917,6 +980,11 @@
 
 \renewcommand\m{17}
 \begin{frame}{mode \m}
+				\vspace{\vh mm}
+	\begin{figure}
+		\centering
+		\includegraphics[width=\molwidth\textwidth]{mode\m_ot.png}
+	\end{figure}
 	\begin{figure}
 		\centering
 		\begin{subfigure}[b]{\w\textwidth}
@@ -954,6 +1022,11 @@
 
 \renewcommand\m{18}
 \begin{frame}{mode \m}
+				\vspace{\vh mm}
+	\begin{figure}
+		\centering
+		\includegraphics[width=\molwidth\textwidth]{mode\m_ot.png}
+	\end{figure}
 	\begin{figure}
 		\centering
 		\begin{subfigure}[b]{\w\textwidth}
@@ -991,6 +1064,11 @@
 
 \renewcommand\m{19}
 \begin{frame}{mode \m}
+					\vspace{\vh mm}
+	\begin{figure}
+		\centering
+		\includegraphics[width=\molwidth\textwidth]{mode\m_ot.png}
+	\end{figure}
 	\begin{figure}
 		\centering
 		\begin{subfigure}[b]{\w\textwidth}
@@ -1028,6 +1106,11 @@
 
 \renewcommand\m{20}
 \begin{frame}{mode \m}
+					\vspace{\vh mm}
+	\begin{figure}
+		\centering
+		\includegraphics[width=\molwidth\textwidth]{mode\m_ot.png}
+	\end{figure}
 	\begin{figure}
 		\centering
 		\begin{subfigure}[b]{\w\textwidth}
@@ -1324,6 +1407,11 @@
 
 \renewcommand\m{28}
 \begin{frame}{mode \m}
+					\vspace{\vh mm}
+	\begin{figure}
+		\centering
+		\includegraphics[width=\molwidth\textwidth]{mode\m_ot.png}
+	\end{figure}
 	\begin{figure}
 		\centering
 		\begin{subfigure}[b]{\w\textwidth}
@@ -1694,6 +1782,11 @@
 
 \renewcommand\m{38}
 \begin{frame}{mode \m}
+	\vspace{\vh mm}
+	\begin{figure}
+		\centering
+		\includegraphics[width=\molwidth\textwidth]{mode\m_ot.png}
+	\end{figure}
 	\begin{figure}
 		\centering
 		\begin{subfigure}[b]{\w\textwidth}
@@ -2071,15 +2164,178 @@
 	\end{itemize}
 \end{frame}
 
-\begin{frame}{Sampling method}
-The sampling equation for generating the displaced molecular coordinates is,
 
-\begin{eqnarray}
-\textbf{R} = \textbf{R}_0 + \sum_i^{\textrm{modes}} a_i\textbf{d}_i
-\end{eqnarray}
-
-with starting geometry $\textbf{R}_0$, and displacement unit vectors $\textbf{d}_i$ for each normal mode are obtained from a frequency calculation.  The factors $a_i$ are randomly generated within a bell curve centered at $\mu=0$, and chosen standard deviation, $\sigma_i$. 
+\begin{frame}{modes 14, 18, 28, 38}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/10000_vstrongmodes_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/10000_vstrongmodes_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/10000_vstrongmodes_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/10000_vstrongmodes_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/10000_vstrongmodes_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/10000_vstrongmodes_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
 \end{frame}
+
+\begin{frame}{4-mode model can get wrong result...}
+\begin{columns}
+\begin{column}{0.5\textwidth}
+	\vspace{-5mm}
+\begin{figure}
+	\centering
+	\begin{subfigure}[b]{0.4\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{argmin_traj_50000_vstrongmodes_frame0.png}
+		\text{$t = -0.45\ \textrm{ps}$}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.4\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{argmin_traj_50000_vstrongmodes_frame36.png}
+		\text{$t = 1\ \textrm{ps}$}
+	\end{subfigure}
+\end{figure}
+\begin{figure}
+	\centering
+	\begin{subfigure}[b]{\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{../data/argmin_angle_vstrongmodes_50000.png}
+		\caption{C(methyl)-N-O angle}
+	\end{subfigure}
+	\begin{subfigure}[b]{\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{../data/argmin_torsion_vstrongmodes_50000.png}
+		\caption{Torsion angle}
+	\end{subfigure}
+\end{figure}
+%\begin{itemize}
+%	\item f
+%\end{itemize}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{stankus_angle_plots.png}
+	\caption{{\tiny Stankus, et al.\ Nature Chem.\ (2019)}}
+	\label{fig:nmm-geom}
+\end{figure}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+\begin{frame}{mode 0 ``methyl swing" + 14, 18, 28, 38}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/20000_0+vstrongmodes_-0.10.png}
+			\caption{-0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/20000_0+vstrongmodes_-0.05.png}
+			\caption{-0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/20000_0+vstrongmodes_0.00.png}
+			\caption{0 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/20000_0+vstrongmodes_0.05.png}
+			\caption{0.05 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/20000_0+vstrongmodes_0.10.png}
+			\caption{0.1 ps}
+		\end{subfigure}
+		\begin{subfigure}[b]{\w\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{../notebooks/20000_0+vstrongmodes_1.00.png}
+			\caption{1 ps}
+		\end{subfigure}
+	\end{figure}
+\begin{itemize}
+	\item better fit at all $t$; indicates correct transitional motion
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Improved model (5 modes, $N=50{,}000$)}
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\vspace{-5mm}
+			\begin{figure}
+				\centering
+				\begin{subfigure}[b]{0.4\textwidth}
+					\centering
+					\includegraphics[width=\textwidth]{argmin_traj_50000_0+vstrongmodes_frame0_v2.png}
+					\text{$t = -0.45\ \textrm{ps}$}
+				\end{subfigure}
+				\begin{subfigure}[b]{0.4\textwidth}
+					\centering
+					\includegraphics[width=\textwidth]{argmin_traj_50000_0+vstrongmodes_frame30_v2.png}
+					\text{$t = 1\ \textrm{ps}$}
+				\end{subfigure}
+			\end{figure}
+			\begin{figure}
+				\centering
+				\begin{subfigure}[b]{\textwidth}
+					\centering
+					\includegraphics[width=\textwidth]{../data/argmin_angle_0+vstrongmodes_50000.png}
+					\caption{C(methyl)-N-O angle}
+				\end{subfigure}
+				\begin{subfigure}[b]{\textwidth}
+					\centering
+					\includegraphics[width=\textwidth]{../data/argmin_torsion_0+vstrongmodes_50000.png}
+					\caption{Torsion angle}
+				\end{subfigure}
+			\end{figure}
+			%\begin{itemize}
+			%	\item f
+			%\end{itemize}
+		\end{column}
+		
+		\begin{column}{0.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=0.7\textwidth]{stankus_angle_plots.png}
+				\caption{{\tiny Stankus, et al.\ Nature Chem.\ (2019)}}
+				\label{fig:nmm-geom}
+			\end{figure}
+		\end{column}
+	\end{columns}
+	
+\end{frame}
+
+
 
 
 \end{document}

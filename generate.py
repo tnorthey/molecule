@@ -20,7 +20,8 @@ nmodes = 48
 #modes = list(range(0, nmodes))
 mode_low_range = int(sys.argv[6])
 #modes = list(range(mode_low_range, mode_low_range + 1))
-modes = np.array([0, 14, 18, 28, 38])
+#modes = np.array([0, 14, 18, 28, 38])
+modes = np.array([14, 18, 28, 38])
 #modes = list(range(47, 48))
 # define displacement factors array
 displacement_factors = 0.5 * np.ones(len(modes))
@@ -32,7 +33,6 @@ displacement_factors[2] = 1.0
 nstructures = int(sys.argv[1])
 #option = "linear"
 option = "normal"
-#subtitle = "mode0"
 subtitle = sys.argv[5]
 directory = "xyz/generated/%s_%s_%i" % (title, subtitle, nstructures)
 os.makedirs(directory, exist_ok=True)  # create directory if doesn't exist
