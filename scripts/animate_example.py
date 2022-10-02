@@ -4,7 +4,7 @@ import molecule
 m = molecule.Molecule()
 nm = molecule.Normal_modes()
 
-factor = 0.2
+factor = 2.0
 
 xyz_start_file = "../xyz/nmm.xyz"
 nmfile = "../nm/nmm_normalmodes.txt"
