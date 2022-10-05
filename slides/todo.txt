@@ -1,0 +1,21 @@
+
+define chi^2
+
+
+say that I allow more freedom of movement to mode 0 "imagine I heated it" in the 1m and 2m simulations
+- basically Wigner with a "hot" methyl motion
+
+- still resolution problem, dare I say that improved experiment resolution would solve it?
+
+
+introduce normal mode method
+- it can be automated; 
+- choose top N modes that have lowest <chi^2>
+
+- goal is much lower confomational dimensions to search
+  increases density of structure pool in important region
+- computationally faster!
+
+
+
+bagel calculations

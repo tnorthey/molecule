@@ -21,13 +21,15 @@ nmodes = 48
 mode_low_range = int(sys.argv[6])
 #modes = list(range(mode_low_range, mode_low_range + 1))
 #modes = np.array([0, 14, 18, 28, 38])
-modes = np.array([14, 18, 28, 38])
+#modes = np.array([0, 6, 14, 18, 28])
+modes = np.array([0, 5, 6, 9, 11, 12, 14, 15, 18, 28])
 #modes = list(range(47, 48))
 # define displacement factors array
-displacement_factors = 0.5 * np.ones(len(modes))
-displacement_factors[0] = 8.0
-displacement_factors[1] = 2.0
-displacement_factors[2] = 1.0
+displacement_factors = 0.2 * np.ones(len(modes))
+displacement_factors[0] = 6.0
+displacement_factors[1] = 3.0
+displacement_factors[2] = 3.0
+displacement_factors[3] = 0.5
 # =================================
 # nstructures = 10000
 nstructures = int(sys.argv[1])
