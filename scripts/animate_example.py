@@ -1,10 +1,11 @@
 import numpy as np
 import molecule
+import sys
 
 m = molecule.Molecule()
 nm = molecule.Normal_modes()
 
-factor = 3.0
+factor = float(sys.argv[1])
 
 xyz_start_file = "../xyz/nmm.xyz"
 nmfile = "../nm/nmm_normalmodes.txt"

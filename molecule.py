@@ -237,7 +237,7 @@ class Normal_modes:
         directory,
         dist_arrays,
         iam_arrays,
-        subtitle
+        subtitle,
     ):
         """generate xyz files by normal mode displacements"""
         nmodes = len(modes)
@@ -271,12 +271,14 @@ class Normal_modes:
             xyzheader, comment, atomlist, xyz = m.read_xyz(reference_xyz)
             reference_iam = x.iam_calc(atomic_numbers, xyz, qvector)
         for i in range(nstructures):
-            print(i)
+            # print(i)
             if linear_dist:
-                a = displacement_factors[0]  # not finished...
-                factors = (
-                    np.random.rand(nmodes) * 2 * a - a
-                )  # random factors in range [-a, a]
+                factors = np.zeros(nmodes)
+                for j in range(nmodes):
+                    a = displacement_factors[j]
+                    factors[j] = (
+                        np.random.random_sample() * 2 * a - a
+                    )  # random factors in range [-a, a]
             elif normal_dist:
                 mu, sigma = 0, displacement_factors  # mean and standard deviation
                 factors = np.random.normal(
@@ -301,7 +303,7 @@ class Normal_modes:
             np.save(outfile, dist_array)
         if iam_save_bool:
             outfile = "data/iam_arrays_%i_%s.npz" % (nstructures, subtitle)
-            print("saving %s..." % outfile)
+            # print("saving %s..." % outfile)
             np.savez(outfile, q=qvector, iam=iam_array, pcd=pcd_array)
 
 
@@ -517,12 +519,12 @@ class Structure_pool_method:
         """loops over iam_array and compares to exp. outputs chi2 array"""
         # read iam array
         array_file = "data/%s" % iam_array_file
-        print('reading %s...' % array_file)
+        # print('reading %s...' % array_file)
         f = np.load(array_file, allow_pickle=True)
         q = f["q"]
         nq = len(q)
         pcd = f["pcd"]
-        print(pcd.shape)
+        # print(pcd.shape)
         # load experiment pcd
         datafile = "data/NMM_exp_dataset.mat"
         mat = scipy.io.loadmat(datafile)
@@ -540,18 +542,18 @@ class Structure_pool_method:
             # also combine every 2nd lineout
             t_exp = t_exp[0::2]
             pcd_exp = 0.5 * (pcd_exp[:, 0::2] + pcd_exp[:, 1::2])
-        print(len(t_exp))
-        print(pcd_exp.shape)
+        # print(len(t_exp))
+        # print(pcd_exp.shape)
         nt = len(t_exp)
         # chi2 loop
         chi2 = np.zeros((N, nt))
         for t in range(nt):
-            print(t)
+            # print(t)
             y = np.squeeze(pcd_exp[:, t])
             errors = np.squeeze(errors_exp[:, t])
             for i in range(N):
                 x = excitation_factor * pcd[:, i]
-                #chi2[i, t] = np.sum(((x - y) / errors) ** 2)
+                # chi2[i, t] = np.sum(((x - y) / errors) ** 2)
                 # chi2[i, t] = np.sum(((x - y) / y) ** 2 )
                 chi2[i, t] = np.sum((x - y) ** 2)
         chi2 /= nq  # normalise by len(q)
@@ -584,6 +586,11 @@ class Structure_pool_method:
         chi2_file = np.load("data/%s" % chi2_file)
         chi2_array = chi2_file["chi2"]
         argmin_array = np.argmin(chi2_array[:, :], axis=0)
+        chi2_time_avg = 0
+        for t in range(len(argmin_array)):
+            chi2_time_avg += chi2_array[argmin_array[t], t]
+        chi2_time_avg /= len(argmin_array)
+        # print('time-avg chi2: %f' % chi2_time_avg)
         atoms_xyz_traj = np.empty((1, 4))
         # load xyz array
         xyz_array = np.load("data/%s" % xyz_array_file)["xyz"]
@@ -597,7 +604,7 @@ class Structure_pool_method:
             atoms_xyz_traj = np.append(atoms_xyz_traj, atoms_xyz, axis=0)
         atoms_xyz_traj = atoms_xyz_traj[1:, :]  # remove 1st line of array
         fname = "data/argmin_traj_%i_%s.xyz" % (N, subtitle)
-        print('writing %s...' % fname)
+        # print('writing %s...' % fname)
         np.savetxt(
             fname,
             atoms_xyz_traj,
@@ -607,4 +614,50 @@ class Structure_pool_method:
             footer="",
             comments="",
         )
-        return
+        return chi2_time_avg
+
+    def generate(
+        self,
+        title,
+        subtitle,
+        atomlist,
+        excitation_factor,
+        nstructures,
+        modes,
+        displacement_factors,
+    ):
+        """wrapper function:
+        generate structures, xyz array, IAM array,
+        chi2 array, argmin_trajectory, time-averaged chi2"""
+        # the xyz file "xyz/title.xyz" and
+        # the normal mode displacements file "nm/title_normalmodes.txt" have to exist
+        starting_xyzfile = "xyz/%s.xyz" % title
+        nmfile = "nm/%s_normalmodes.txt" % title
+        # generate structure pool
+        dist_arrays = True
+        iam_arrays = True
+        option = "linear"  # uniform random distribution
+        directory = "xyz/generated/%s_%s_%i" % (title, subtitle, nstructures)
+        os.makedirs(directory, exist_ok=True)  # create directory if doesn't exist
+        nm.generate_structures(
+            starting_xyzfile,
+            nmfile,
+            modes,
+            displacement_factors,
+            nstructures,
+            option,
+            directory,
+            dist_arrays,
+            iam_arrays,
+            subtitle,
+        )
+        # create chi2 array
+        iam_array_file = "iam_arrays_%i_%s.npz" % (nstructures, subtitle)
+        self.chi2_(iam_array_file, nstructures, excitation_factor, subtitle)
+        # create argmin trajectory
+        chi2_file = "chi2_%i_%s.npz" % (nstructures, subtitle)
+        xyz_array_file = "xyz_array_%i_%s.npz" % (nstructures, subtitle)
+        chi2_time_avg = self.xyz_trajectory(
+            atomlist, xyz_array_file, chi2_file, nstructures, subtitle
+        )
+        return chi2_time_avg
