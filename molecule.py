@@ -204,16 +204,13 @@ class Normal_modes:
     def nm_displacer(self, xyz, displacements, modes, factors):
         """displace xyz along all displacements by factors array"""
         summed_displacement = np.zeros(displacements[0, :, :].shape)
-        if not hasattr(
-            modes, "__len__"
-        ):  # check if it's just a single value (not an array)
+        if not hasattr(modes, "__len__"):  # create array if not
             modes = np.array([modes])  # convert to arrays for iteration
         nmodes = len(modes)
         factors_array = np.multiply(factors, np.ones(nmodes))
         for i in range(nmodes):
             summed_displacement += displacements[modes[i], :, :] * factors_array[i]
-        displaced_xyz = self.displace_xyz(xyz, summed_displacement, 1.0)
-        return displaced_xyz
+        return xyz + summed_displacement
 
     def animate_mode(self, mode, xyz_start_file, nmfile, natoms, factor):
         """make xyz file animation along normal mode"""
@@ -449,7 +446,7 @@ class Xray:
             compton_array[i, :] = interpolate.splev(qvector, tck, der=0)
         return compton_array
 
-    def iam_calc(self, atomic_numbers, xyz, qvector):
+    def iam_calc(self, atomic_numbers, xyz, qvector, compton_array):
         """calculate IAM molecular scattering curve for atoms, xyz, qvector"""
         natom = len(atomic_numbers)
         qlen = len(qvector)
@@ -457,9 +454,6 @@ class Xray:
         molecular = np.zeros(qlen)  # total molecular factor
         compton = np.zeros(qlen)  # total compton factor
         atomic_factor_array = np.zeros((natom, qlen))  # array of atomic factors
-        compton_array = self.compton_spline(
-            atomic_numbers, qvector
-        )  # atomic compton factors
         for i in range(natom):
             tmp = self.atomic_factor(atomic_numbers[i], qvector)
             atomic_factor_array[i, :] = tmp
@@ -478,6 +472,7 @@ class Xray:
     def iam_duplicate_search(
         self, starting_xyzfile, nmfile, modes, displacement_factor, niterations
     ):
+        """finds very similar IAM curves for different geometries"""
         # from scipy.stats import chisquare
         # starting coordinates
         xyzheader, comment, atomlist, xyz = m.read_xyz(starting_xyzfile)
@@ -680,6 +675,60 @@ class Structure_pool_method:
             atomlist, xyz_array_file, chi2_file, nstructures, subtitle
         )
         return chi2_time_avg
+
+    def simulate_trajectory(
+        self, starting_xyz, displacements, wavenumbers, nsteps, step_size
+    ):
+        """creates a simulated trajectory by randomly going along normal modes"""
+        # step_size = 0.01
+        natom = starting_xyz.shape[0]
+        nmodes = len(wavenumbers)
+        modes = list(range(nmodes))
+        displacement_factors = np.zeros(nmodes)
+        for i in range(nmodes): # initial factors are inv. prop. to wavenumber
+            displacement_factors[i] = wavenumbers[0] / wavenumbers[i]
+        displacement_factors *= step_size  # adjust max size of displacement step
+        def uniform_factors():
+            """uniformly random displacement step along each mode"""
+            factors = np.zeros(nmodes)
+            for j in range(nmodes):
+                # random factors in range [-a, a]
+                a = displacement_factors[j]
+                factors[j] = 2 * a * np.random.random_sample() - a
+            return factors
+        xyz = starting_xyz  # start at starting xyz
+        xyz_traj = np.zeros((natom, 3, nsteps))
+        for i in range(nsteps):
+            factors = uniform_factors() # random factors
+            xyz = nm.nm_displacer(xyz, displacements, modes, factors)
+            xyz_traj[:, :, i] = xyz
+        return xyz_traj
+
+    def xyz_traj_to_file(self, atoms, xyz_traj):
+        """converts xyz_traj array to traj.xyz"""
+        natom = len(atoms)
+        atoms_xyz_traj = np.empty((1, 4))
+        for j in range(xyz_traj.shape[2]):
+            comment = str(j)
+            xyz = xyz_traj[:, :, j]
+            xyz = xyz.astype("|S10")  # convert to string array (max length 10)
+            tmp = np.array([[str(natom), "", "", ""], [comment, "", "", ""]])
+            atoms_xyz = np.append(np.transpose([atoms]), xyz, axis=1)
+            atoms_xyz = np.append(tmp, atoms_xyz, axis=0)
+            atoms_xyz_traj = np.append(atoms_xyz_traj, atoms_xyz, axis=0)
+        atoms_xyz_traj = atoms_xyz_traj[1:, :]  # remove 1st line of array
+        fname = "data/traj.xyz"
+        print('writing %s...' % fname)
+        np.savetxt(
+            fname,
+            atoms_xyz_traj,
+            fmt="%s",
+            delimiter=" ",
+            header="",
+            footer="",
+            comments="",
+        )
+        return
 
     def simulated_annealing(
         self, starting_xyz, displacements, wavenumbers, nsteps, starting_temp

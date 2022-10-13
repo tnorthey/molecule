@@ -6,16 +6,18 @@ import molecule
 # create class objects
 m = molecule.Molecule()
 nm = molecule.Normal_modes()
+sp = molecule.Structure_pool_method()
 # define stuff
 natom = 3
 xyzheader, comment, atomlist, xyz = m.read_xyz("xyz/test.xyz")
-chargelist = [m.periodic_table(symbol) for symbol in atomlist]
+atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
 dim = 3
-tcm, fcm = m.triangle_cm(chargelist, xyz, dim)
+tcm, fcm = m.triangle_cm(atomic_numbers, xyz, dim)
 
 # normal mode definitions
 nmfile = "nm/test_normalmodes.txt"
 displacements = nm.read_nm_displacements(nmfile, natom)
+print(displacements)
 displacement = displacements[0, :, :]  # 1st mode displacements
 factor = 1
 
@@ -29,7 +31,7 @@ def test_read_xyz():
     assert xyzheader == 3, "xyzheader should be 3"
     assert comment.__contains__("test"), "comment should be 'test'"
     assert atomlist[0] == "O", "1st atom should be O"
-    assert chargelist[0] == 8, "1st atomic charge should be 8"
+    assert atomic_numbers[0] == 8, "1st atomic charge should be 8"
     assert xyz[0, 0] == 0.0, "Upper left coordinate should be 0.0"
 
 
@@ -43,12 +45,12 @@ def test_write_xyz():
 
 
 def test_sort_array():
-    print(chargelist)
+    print(atomic_numbers)
     print(xyz)
-    xyz_sorted = m.sort_array(xyz, chargelist)
+    xyz_sorted = m.sort_array(xyz, atomic_numbers)
     print(xyz_sorted)
     print(atomlist)
-    atoms = m.sort_array(atomlist, chargelist)
+    atoms = m.sort_array(atomlist, atomic_numbers)
     print(atoms)
     # add assertion ...
 
@@ -128,7 +130,10 @@ def test_atomic_factor():
 
 
 def test_iam_calc():
-    iam, compton = x.iam_calc(chargelist, xyz, qvector)
+    compton_array = x.compton_spline(
+        atomic_numbers, qvector
+    )  # atomic compton factors
+    iam, compton = x.iam_calc(atomic_numbers, xyz, qvector, compton_array)
     assert round(iam[0], 1) == 100.0, "H2O molecular factor (q = 0) != 100"
     assert round(iam[-1], 5) == 2.4691, "H2O molecular factor (q = 10)"
 
@@ -136,3 +141,16 @@ def test_distances_array():
     dist_array = m.distances_array(xyz)
     assert dist_array[1, 2] == 2, "distance between hydrogens != 2"
 
+def test_simulate_trajectory():
+    xyzheader, comment, atomlist, xyz = m.read_xyz("xyz/nmm.xyz")
+    starting_xyz = xyz
+    natom = xyz.shape[0]
+    nsteps = 1000
+    step_size = 0.1
+    wavenumbers = np.loadtxt('quantum/nmm_wavenumbers.dat')[:, 1]
+    nmfile = "nm/nmm_normalmodes.txt"
+    displacements = nm.read_nm_displacements(nmfile, natom)
+    xyz_traj = sp.simulate_trajectory(starting_xyz, displacements, wavenumbers, nsteps, step_size)
+    sp.xyz_traj_to_file(atomlist, xyz_traj)
+
+test_simulate_trajectory()
