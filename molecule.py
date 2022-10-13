@@ -19,6 +19,7 @@ import os
 import numpy as np
 import pandas as pd
 import scipy.io
+from scipy import interpolate
 
 ######
 class Molecule:
@@ -271,7 +272,7 @@ class Normal_modes:
             xyzheader, comment, atomlist, xyz = m.read_xyz(reference_xyz)
             reference_iam = x.iam_calc(atomic_numbers, xyz, qvector)
         for i in range(nstructures):
-            # print(i)
+            print(i)
             if linear_dist:
                 factors = np.zeros(nmodes)
                 for j in range(nmodes):
@@ -435,26 +436,44 @@ class Xray:
         iam = atomic + molecular
         return iam
 
+    def compton_spline(self, atomic_numbers, qvector):
+        """spline the compton factors to correct qvector, outputs array (atoms, qvector)"""
+        natom = len(atomic_numbers)
+        compton_array = np.zeros(
+            (natom, len(qvector))
+        )  # inelastic component for each atom
+        tmp = np.load("Compton_Scattering_Intensities.npz")  # compton factors
+        q_compton, arr = tmp["q_compton"], tmp["compton"]
+        for i in range(natom):
+            tck = interpolate.splrep(q_compton, arr[atomic_numbers[i] - 1, :], s=0)
+            compton_array[i, :] = interpolate.splev(qvector, tck, der=0)
+        return compton_array
+
     def iam_calc(self, atomic_numbers, xyz, qvector):
         """calculate IAM molecular scattering curve for atoms, xyz, qvector"""
         natom = len(atomic_numbers)
         qlen = len(qvector)
         atomic = np.zeros(qlen)  # total atomic factor
         molecular = np.zeros(qlen)  # total molecular factor
-        af_array = np.zeros((natom, qlen))  # array of atomic factors
+        compton = np.zeros(qlen)  # total compton factor
+        atomic_factor_array = np.zeros((natom, qlen))  # array of atomic factors
+        compton_array = self.compton_spline(
+            atomic_numbers, qvector
+        )  # atomic compton factors
         for i in range(natom):
             tmp = self.atomic_factor(atomic_numbers[i], qvector)
-            af_array[i, :] = tmp
+            atomic_factor_array[i, :] = tmp
             atomic += tmp**2
+            compton += compton_array[i, :]
         for i in range(natom):
             for j in range(i + 1, natom):  # j > i
                 molecular += (
                     2
-                    * np.multiply(af_array[i, :], af_array[j, :])
+                    * np.multiply(atomic_factor_array[i, :], atomic_factor_array[j, :])
                     * np.sinc(qvector * np.linalg.norm(xyz[i, :] - xyz[j, :]) / np.pi)
                 )
         iam = atomic + molecular
-        return iam
+        return iam, compton
 
     def iam_duplicate_search(
         self, starting_xyzfile, nmfile, modes, displacement_factor, niterations
@@ -661,3 +680,15 @@ class Structure_pool_method:
             atomlist, xyz_array_file, chi2_file, nstructures, subtitle
         )
         return chi2_time_avg
+
+    def simulated_annealing(
+        self, starting_xyz, displacements, wavenumbers, nsteps, starting_temp
+    ):
+        """molecule sampling by simulated annealing,
+        displace along each mode according to 'temperature' at each step"""
+        nmodes = len(wavenumbers)
+        c = 0
+        while end_criteria and c <= nsteps:
+            c += 1
+
+        return

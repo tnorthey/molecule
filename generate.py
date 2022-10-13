@@ -18,8 +18,17 @@ displacement_factors = 1.0 * np.ones(nmodes)
 
 chi2_time_avg = np.zeros((48, 48))
 for i in range(48):
+    if i==0:
+        displacement_factors[0] = 6.0
+    if i > 24:
+        displacement_factors[0] = 0.2
     print(i)
-    for j in range(48):
+    for j in range(i, 48):
+    #for j in range(48):
+        if j==0:
+            displacement_factors[1] = 6.0
+        if j > 24:
+            displacement_factors[1] = 0.2
         modes = np.array([i, j])
         subtitle = "modes%i_%i" % (i, j)
         chi2_time_avg[i, j] = sp.generate(
