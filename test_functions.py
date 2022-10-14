@@ -17,7 +17,6 @@ tcm, fcm = m.triangle_cm(atomic_numbers, xyz, dim)
 # normal mode definitions
 nmfile = "nm/test_normalmodes.txt"
 displacements = nm.read_nm_displacements(nmfile, natom)
-print(displacements)
 displacement = displacements[0, :, :]  # 1st mode displacements
 factor = 1
 
@@ -145,8 +144,8 @@ def test_simulate_trajectory():
     xyzheader, comment, atomlist, xyz = m.read_xyz("xyz/nmm.xyz")
     starting_xyz = xyz
     natom = xyz.shape[0]
-    nsteps = 1000
-    step_size = 0.1
+    nsteps = 100
+    step_size = 0.5
     wavenumbers = np.loadtxt('quantum/nmm_wavenumbers.dat')[:, 1]
     nmfile = "nm/nmm_normalmodes.txt"
     displacements = nm.read_nm_displacements(nmfile, natom)

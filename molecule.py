@@ -446,7 +446,7 @@ class Xray:
             compton_array[i, :] = interpolate.splev(qvector, tck, der=0)
         return compton_array
 
-    def iam_calc(self, atomic_numbers, xyz, qvector, compton_array):
+    def iam_calc_compton(self, atomic_numbers, xyz, qvector, compton_array):
         """calculate IAM molecular scattering curve for atoms, xyz, qvector"""
         natom = len(atomic_numbers)
         qlen = len(qvector)
@@ -468,6 +468,27 @@ class Xray:
                 )
         iam = atomic + molecular
         return iam, compton
+
+    def iam_calc(self, atomic_numbers, xyz, qvector):
+        """calculate IAM molecular scattering curve for atoms, xyz, qvector"""
+        natom = len(atomic_numbers)
+        qlen = len(qvector)
+        atomic = np.zeros(qlen)  # total atomic factor
+        molecular = np.zeros(qlen)  # total molecular factor
+        atomic_factor_array = np.zeros((natom, qlen))  # array of atomic factors
+        for i in range(natom):
+            tmp = self.atomic_factor(atomic_numbers[i], qvector)
+            atomic_factor_array[i, :] = tmp
+            atomic += tmp**2
+        for i in range(natom):
+            for j in range(i + 1, natom):  # j > i
+                molecular += (
+                    2
+                    * np.multiply(atomic_factor_array[i, :], atomic_factor_array[j, :])
+                    * np.sinc(qvector * np.linalg.norm(xyz[i, :] - xyz[j, :]) / np.pi)
+                )
+        iam = atomic + molecular
+        return iam
 
     def iam_duplicate_search(
         self, starting_xyzfile, nmfile, modes, displacement_factor, niterations
@@ -676,30 +697,35 @@ class Structure_pool_method:
         )
         return chi2_time_avg
 
-    def simulate_trajectory(
-        self, starting_xyz, displacements, wavenumbers, nsteps, step_size
-    ):
-        """creates a simulated trajectory by randomly going along normal modes"""
-        # step_size = 0.01
-        natom = starting_xyz.shape[0]
+    def uniform_factors(self, nmodes, displacement_factors):
+        """uniformly random displacement step along each mode"""
+        factors = np.zeros(nmodes)
+        for j in range(nmodes):
+            # random factors in range [-a, a]
+            a = displacement_factors[j]
+            factors[j] = 2 * a * np.random.random_sample() - a
+        return factors
+
+    def displacements_from_wavenumbers(self, nmodes, wavenumbers, step_size):
         nmodes = len(wavenumbers)
-        modes = list(range(nmodes))
         displacement_factors = np.zeros(nmodes)
         for i in range(nmodes): # initial factors are inv. prop. to wavenumber
             displacement_factors[i] = wavenumbers[0] / wavenumbers[i]
         displacement_factors *= step_size  # adjust max size of displacement step
-        def uniform_factors():
-            """uniformly random displacement step along each mode"""
-            factors = np.zeros(nmodes)
-            for j in range(nmodes):
-                # random factors in range [-a, a]
-                a = displacement_factors[j]
-                factors[j] = 2 * a * np.random.random_sample() - a
-            return factors
+        return displacement_factors
+
+    def simulate_trajectory(
+        self, starting_xyz, displacements, wavenumbers, nsteps, step_size
+    ):
+        """creates a simulated trajectory by randomly moving along normal modes"""
+        natom = starting_xyz.shape[0]
+        nmodes = len(wavenumbers)
+        modes = list(range(nmodes))
+        displacement_factors = self.displacements_from_wavenumbers(wavenumbers, step_size)
         xyz = starting_xyz  # start at starting xyz
         xyz_traj = np.zeros((natom, 3, nsteps))
         for i in range(nsteps):
-            factors = uniform_factors() # random factors
+            factors = self.uniform_factors(nmodes, displacement_factors) # random factors
             xyz = nm.nm_displacer(xyz, displacements, modes, factors)
             xyz_traj[:, :, i] = xyz
         return xyz_traj
@@ -709,7 +735,7 @@ class Structure_pool_method:
         natom = len(atoms)
         atoms_xyz_traj = np.empty((1, 4))
         for j in range(xyz_traj.shape[2]):
-            comment = str(j)
+            comment = 'iteration: %i' % j
             xyz = xyz_traj[:, :, j]
             xyz = xyz.astype("|S10")  # convert to string array (max length 10)
             tmp = np.array([[str(natom), "", "", ""], [comment, "", "", ""]])
@@ -730,14 +756,37 @@ class Structure_pool_method:
         )
         return
 
+    def xyz_traj_to_iam(self, xyz_traj, qvector, reference_xyz_file='xyz/nmm.xyz'):
+        """creates iam_array from xyz_traj"""
+        nsteps = xyz_traj.shape[2]
+        qlen = len(qvector)
+        # refence IAM curve
+        xyzheader, comment, atomlist, reference_xyz = m.read_xyz(reference_xyz_file)
+        reference_iam = x.iam_calc(atomic_numbers, xyz, qvector)
+        atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
+        pcd_array = np.zeros((qlen, nsteps))
+        for i in range(nsteps):
+            iam = x.iam_calc(atomic_numbers, xyz, qvector)
+            pcd_array[:, i] = 100 * (iam / reference_iam - 1)
+        return pcd_array
+
     def simulated_annealing(
         self, starting_xyz, displacements, wavenumbers, nsteps, starting_temp
     ):
         """molecule sampling by simulated annealing,
         displace along each mode according to 'temperature' at each step"""
+        natom = starting_xyz.shape[0]
         nmodes = len(wavenumbers)
+        modes = list(range(nmodes))
+        displacement_factors = self.displacements_from_wavenumbers(wavenumbers, step_size)
+        xyz = starting_xyz  # start at starting xyz
+        xyz_traj = np.zeros((natom, 3, nsteps))
+        for i in range(nsteps):
+            factors = self.uniform_factors(nmodes, displacement_factors) # random factors
+            xyz = nm.nm_displacer(xyz, displacements, modes, factors)
+            xyz_traj[:, :, i] = xyz
+
         c = 0
         while end_criteria and c <= nsteps:
             c += 1
-
         return
