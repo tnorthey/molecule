@@ -159,7 +159,7 @@ def test_simulated_annealing():
     atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
     starting_iam = x.iam_calc(atomic_numbers, xyz, qvector)
     starting_xyz = xyz
-    nsteps = 500
+    nsteps = 10000
     wavenumbers = np.loadtxt('quantum/nmm_wavenumbers.dat')[:, 1]
     nmfile = "nm/nmm_normalmodes.txt"
     natom = 18
@@ -169,11 +169,13 @@ def test_simulated_annealing():
     displaced_iam = x.iam_calc(atomic_numbers, xyz_displaced, qvector)
     experiment_pcd = 100 * (displaced_iam/starting_iam - 1)
     # run sim annealing
+    convergence_value = 0.001
     xyz_min_traj, chi2_path = sp.simulated_annealing(
-        starting_xyz, displacements, wavenumbers, nsteps, experiment_pcd, qvector
+        starting_xyz, displacements, wavenumbers, nsteps, experiment_pcd, qvector, convergence_value
     )
-    print(chi2_path)
-    fname = 'data/min_traj.xyz'
-    sp.xyz_traj_to_file(atomlist, xyz_min_traj, fname)
+    save_xyz_traj_file = False
+    if save_xyz_traj_file:
+        fname = 'data/min_traj.xyz'
+        sp.xyz_traj_to_file(atomlist, xyz_min_traj, fname)
 
 test_simulated_annealing()

@@ -775,18 +775,26 @@ class Structure_pool_method:
         return pcd_array
 
     def simulated_annealing(
-        self, starting_xyz, displacements, wavenumbers, nsteps, experiment_pcd, qvector
+        self,
+        starting_xyz,
+        displacements,
+        wavenumbers,
+        nsteps,
+        experiment_pcd,
+        qvector,
+        convergence_value,
+        save_xyz_path=False
     ):
         """simulated annealing minimisation to experiment,
         displace along each mode according to 'temperature' at each step"""
         natom = starting_xyz.shape[0]
         nmodes = len(wavenumbers)
         modes = list(range(nmodes))
-        step_size = 0.2  # how many unit vectors to go along each mode.
+        step_size = 0.05  # how many unit vectors to go along each mode.
         displacement_factors = self.displacements_from_wavenumbers(
             wavenumbers, step_size
         )
-        xyz_minimisation_path = np.zeros((natom, 3, nsteps))
+        xyz_path = np.zeros((natom, 3, nsteps))
         xyz = starting_xyz  # start at starting xyz
         # refence IAM curve
         reference_xyz_file = "xyz/nmm.xyz"
@@ -812,22 +820,27 @@ class Structure_pool_method:
 
         # start loop
         # temp = starting_temp
-        chi2_ = 1e6  # arbitrarily large start value
+        chi2 = 1e6  # arbitrarily large start value
         c = -1  # counter for acceptances
-        a = 1.0  # "temperature"
+        starting_temp = 1.0
+        cooling_rate = 4
+        a = starting_temp  # "temperature"
         chi2_path = np.zeros(nsteps)
         for i in range(nsteps):
-            xyz = random_displace_xyz(xyz, a)
-            pcd = pcd_iam(xyz)  # IAM percent difference from reference
-            chi2 = chi2_value(pcd, experiment_pcd)  # chi2 between experiment and theory
-            acceptance_probability = 1 - i / nsteps  # lazy definition for now, [0, 1]
-            if (chi2 < chi2_) or (
-                np.random.rand() > acceptance_probability
-            ):  # acceptance criteria
+            xyz_ = random_displace_xyz(xyz, a)
+            pcd = pcd_iam(xyz_)  # IAM percent difference from reference
+            chi2_ = chi2_value(pcd, experiment_pcd)
+            if (chi2_ < chi2) or (a > np.random.rand()):  # acceptance criteria
                 c += 1  # count acceptances
-                a *= 1 - c / nsteps  # decrease temperature
-                chi2_ = chi2  # store current chi2 value
-                chi2_path[c] = chi2
-                xyz_minimisation_path[:, :, c] = xyz  # store minimisation pathway
-        return xyz_minimisation_path[:, :, :c], chi2_path[:c]
-
+                # a = 0.5 * (1 - starting_temp * (c + 1) / nsteps)  # decrease temperature
+                # a = 0.5 * (starting_temp - c / nsteps)  # decrease temperature
+                a = 0.5 * np.exp(-cooling_rate * c / nsteps)  # decrease temperature
+                chi2, xyz = chi2_, xyz_  # update values
+                chi2_path[c] = chi2_
+                if save_xyz_path:
+                    xyz_path[:, :, c] = xyz_  # store minimisation pathway
+                print("a = %f" % a)
+                print("chi2 = %f" % chi2_)
+            if chi2 < convergence_value:
+                break
+        return xyz_path[:, :, :c], chi2_path[:c]
