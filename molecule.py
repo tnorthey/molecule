@@ -706,10 +706,10 @@ class Structure_pool_method:
             factors[j] = 2 * a * np.random.random_sample() - a
         return factors
 
-    def displacements_from_wavenumbers(self, nmodes, wavenumbers, step_size):
+    def displacements_from_wavenumbers(self, wavenumbers, step_size):
         nmodes = len(wavenumbers)
         displacement_factors = np.zeros(nmodes)
-        for i in range(nmodes): # initial factors are inv. prop. to wavenumber
+        for i in range(nmodes):  # initial factors are inv. prop. to wavenumber
             displacement_factors[i] = wavenumbers[0] / wavenumbers[i]
         displacement_factors *= step_size  # adjust max size of displacement step
         return displacement_factors
@@ -721,21 +721,25 @@ class Structure_pool_method:
         natom = starting_xyz.shape[0]
         nmodes = len(wavenumbers)
         modes = list(range(nmodes))
-        displacement_factors = self.displacements_from_wavenumbers(wavenumbers, step_size)
+        displacement_factors = self.displacements_from_wavenumbers(
+            wavenumbers, step_size
+        )
         xyz = starting_xyz  # start at starting xyz
         xyz_traj = np.zeros((natom, 3, nsteps))
         for i in range(nsteps):
-            factors = self.uniform_factors(nmodes, displacement_factors) # random factors
+            factors = self.uniform_factors(
+                nmodes, displacement_factors
+            )  # random factors
             xyz = nm.nm_displacer(xyz, displacements, modes, factors)
             xyz_traj[:, :, i] = xyz
         return xyz_traj
 
-    def xyz_traj_to_file(self, atoms, xyz_traj):
+    def xyz_traj_to_file(self, atoms, xyz_traj, fname):
         """converts xyz_traj array to traj.xyz"""
         natom = len(atoms)
         atoms_xyz_traj = np.empty((1, 4))
         for j in range(xyz_traj.shape[2]):
-            comment = 'iteration: %i' % j
+            comment = "iteration: %i" % j
             xyz = xyz_traj[:, :, j]
             xyz = xyz.astype("|S10")  # convert to string array (max length 10)
             tmp = np.array([[str(natom), "", "", ""], [comment, "", "", ""]])
@@ -743,8 +747,8 @@ class Structure_pool_method:
             atoms_xyz = np.append(tmp, atoms_xyz, axis=0)
             atoms_xyz_traj = np.append(atoms_xyz_traj, atoms_xyz, axis=0)
         atoms_xyz_traj = atoms_xyz_traj[1:, :]  # remove 1st line of array
-        fname = "data/traj.xyz"
-        print('writing %s...' % fname)
+        # fname = "data/traj.xyz"
+        print("writing %s..." % fname)
         np.savetxt(
             fname,
             atoms_xyz_traj,
@@ -756,7 +760,7 @@ class Structure_pool_method:
         )
         return
 
-    def xyz_traj_to_iam(self, xyz_traj, qvector, reference_xyz_file='xyz/nmm.xyz'):
+    def xyz_traj_to_iam(self, xyz_traj, qvector, reference_xyz_file="xyz/nmm.xyz"):
         """creates iam_array from xyz_traj"""
         nsteps = xyz_traj.shape[2]
         qlen = len(qvector)
@@ -771,22 +775,59 @@ class Structure_pool_method:
         return pcd_array
 
     def simulated_annealing(
-        self, starting_xyz, displacements, wavenumbers, nsteps, starting_temp
+        self, starting_xyz, displacements, wavenumbers, nsteps, experiment_pcd, qvector
     ):
-        """molecule sampling by simulated annealing,
+        """simulated annealing minimisation to experiment,
         displace along each mode according to 'temperature' at each step"""
         natom = starting_xyz.shape[0]
         nmodes = len(wavenumbers)
         modes = list(range(nmodes))
-        displacement_factors = self.displacements_from_wavenumbers(wavenumbers, step_size)
+        step_size = 0.2  # how many unit vectors to go along each mode.
+        displacement_factors = self.displacements_from_wavenumbers(
+            wavenumbers, step_size
+        )
+        xyz_minimisation_path = np.zeros((natom, 3, nsteps))
         xyz = starting_xyz  # start at starting xyz
-        xyz_traj = np.zeros((natom, 3, nsteps))
-        for i in range(nsteps):
-            factors = self.uniform_factors(nmodes, displacement_factors) # random factors
-            xyz = nm.nm_displacer(xyz, displacements, modes, factors)
-            xyz_traj[:, :, i] = xyz
+        # refence IAM curve
+        reference_xyz_file = "xyz/nmm.xyz"
+        _, _, atomlist, reference_xyz = m.read_xyz(reference_xyz_file)
+        atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
+        reference_iam = x.iam_calc(atomic_numbers, xyz, qvector)
 
-        c = 0
-        while end_criteria and c <= nsteps:
-            c += 1
-        return
+        def pcd_iam(xyz):
+            iam = x.iam_calc(atomic_numbers, xyz, qvector)
+            return 100 * (iam / reference_iam - 1)
+
+        def chi2_value(x, y):
+            chi2 = np.sum((x - y) ** 2)
+            chi2 /= len(x)  # normalise by len(q)
+            return chi2
+
+        def random_displace_xyz(xyz, a):
+            factors = self.uniform_factors(
+                nmodes, displacement_factors
+            )  # random factors
+            xyz = nm.nm_displacer(xyz, displacements, modes, a * factors)
+            return xyz
+
+        # start loop
+        # temp = starting_temp
+        chi2_ = 1e6  # arbitrarily large start value
+        c = -1  # counter for acceptances
+        a = 1.0  # "temperature"
+        chi2_path = np.zeros(nsteps)
+        for i in range(nsteps):
+            xyz = random_displace_xyz(xyz, a)
+            pcd = pcd_iam(xyz)  # IAM percent difference from reference
+            chi2 = chi2_value(pcd, experiment_pcd)  # chi2 between experiment and theory
+            acceptance_probability = 1 - i / nsteps  # lazy definition for now, [0, 1]
+            if (chi2 < chi2_) or (
+                np.random.rand() > acceptance_probability
+            ):  # acceptance criteria
+                c += 1  # count acceptances
+                a *= 1 - c / nsteps  # decrease temperature
+                chi2_ = chi2  # store current chi2 value
+                chi2_path[c] = chi2
+                xyz_minimisation_path[:, :, c] = xyz  # store minimisation pathway
+        return xyz_minimisation_path[:, :, :c], chi2_path[:c]
+

@@ -22,7 +22,7 @@ factor = 1
 
 # xray testing
 x = molecule.Xray()
-qlen = 80
+qlen = 100
 qvector = np.linspace(0, 10, qlen, endpoint=True)  # q probably in a.u.
 
 
@@ -152,4 +152,28 @@ def test_simulate_trajectory():
     xyz_traj = sp.simulate_trajectory(starting_xyz, displacements, wavenumbers, nsteps, step_size)
     sp.xyz_traj_to_file(atomlist, xyz_traj)
 
-test_simulate_trajectory()
+#test_simulate_trajectory()
+
+def test_simulated_annealing():
+    _, _, atomlist, xyz = m.read_xyz("xyz/nmm.xyz")
+    atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
+    starting_iam = x.iam_calc(atomic_numbers, xyz, qvector)
+    starting_xyz = xyz
+    nsteps = 500
+    wavenumbers = np.loadtxt('quantum/nmm_wavenumbers.dat')[:, 1]
+    nmfile = "nm/nmm_normalmodes.txt"
+    natom = 18
+    displacements = nm.read_nm_displacements(nmfile, natom)
+    # experiment percent diff
+    _, _, _, xyz_displaced = m.read_xyz("xyz/nmm_displaced.xyz")
+    displaced_iam = x.iam_calc(atomic_numbers, xyz_displaced, qvector)
+    experiment_pcd = 100 * (displaced_iam/starting_iam - 1)
+    # run sim annealing
+    xyz_min_traj, chi2_path = sp.simulated_annealing(
+        starting_xyz, displacements, wavenumbers, nsteps, experiment_pcd, qvector
+    )
+    print(chi2_path)
+    fname = 'data/min_traj.xyz'
+    sp.xyz_traj_to_file(atomlist, xyz_min_traj, fname)
+
+test_simulated_annealing()
