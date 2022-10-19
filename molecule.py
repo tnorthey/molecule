@@ -779,28 +779,36 @@ class Structure_pool_method:
         starting_xyz,
         displacements,
         wavenumbers,
-        nsteps,
         experiment_pcd,
         qvector,
-        convergence_value,
-        save_xyz_path=False
+        nsteps=10000,
+        convergence_value=0.001,
+        cooling_rate=4.0,
+        step_size=0.1,
+        save_xyz_path=False,
+        print_values=False,
     ):
         """simulated annealing minimisation to experiment,
         displace along each mode according to 'temperature' at each step"""
         natom = starting_xyz.shape[0]
         nmodes = len(wavenumbers)
         modes = list(range(nmodes))
-        step_size = 0.05  # how many unit vectors to go along each mode.
         displacement_factors = self.displacements_from_wavenumbers(
             wavenumbers, step_size
         )
         xyz_path = np.zeros((natom, 3, nsteps))
         xyz = starting_xyz  # start at starting xyz
-        # refence IAM curve
+        # reference IAM curve
         reference_xyz_file = "xyz/nmm.xyz"
         _, _, atomlist, reference_xyz = m.read_xyz(reference_xyz_file)
         atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
         reference_iam = x.iam_calc(atomic_numbers, xyz, qvector)
+
+        # if using displaced theoretical structure (for RMSD)
+        testing_rmsd_bool = True
+        if testing_rmsd_bool:
+            xyz_file = "xyz/nmm_displaced.xyz"
+            _, _, _, displaced_xyz = m.read_xyz(xyz_file)
 
         def pcd_iam(xyz):
             iam = x.iam_calc(atomic_numbers, xyz, qvector)
@@ -818,14 +826,28 @@ class Structure_pool_method:
             xyz = nm.nm_displacer(xyz, displacements, modes, a * factors)
             return xyz
 
+        def rmsd_atoms(xyz, xyz_, indices):
+            """RMSD between xyz and xyz_ for atom indices"""
+            natoms = len(indices)
+            rmsd = 0.0
+            for i in range(natoms):
+                rmsd += np.sum((xyz[indices[i], :] - xyz_[indices[i], :]) ** 2)
+            rmsd = (rmsd / natom) ** 0.5
+            return rmsd
+
         # start loop
-        # temp = starting_temp
-        chi2 = 1e6  # arbitrarily large start value
-        c = -1  # counter for acceptances
+        non_h_indices = [0, 1, 3, 5, 6, 10, 12]
+        print(atomlist[non_h_indices])
+        #non_h_indices = [0]
         starting_temp = 1.0
-        cooling_rate = 4
         a = starting_temp  # "temperature"
-        chi2_path = np.zeros(nsteps)
+        chi2 = 1e9  # arbitrarily large start value
+        c = -1  # counter for acceptances
+        chi2_path, temp_path, rmsd_path = (
+            np.zeros(nsteps),
+            np.zeros(nsteps),
+            np.zeros(nsteps),
+        )
         for i in range(nsteps):
             xyz_ = random_displace_xyz(xyz, a)
             pcd = pcd_iam(xyz_)  # IAM percent difference from reference
@@ -836,11 +858,14 @@ class Structure_pool_method:
                 # a = 0.5 * (starting_temp - c / nsteps)  # decrease temperature
                 a = 0.5 * np.exp(-cooling_rate * c / nsteps)  # decrease temperature
                 chi2, xyz = chi2_, xyz_  # update values
-                chi2_path[c] = chi2_
+                chi2_path[c] = chi2
+                temp_path[c] = a
+                rmsd_path[c] = rmsd_atoms(xyz, displaced_xyz, non_h_indices)
                 if save_xyz_path:
-                    xyz_path[:, :, c] = xyz_  # store minimisation pathway
-                print("a = %f" % a)
-                print("chi2 = %f" % chi2_)
+                    xyz_path[:, :, c] = xyz  # store minimisation pathway
+                if print_values:
+                    print("a = %f" % a)
+                    print("chi2 = %f" % chi2)
             if chi2 < convergence_value:
                 break
-        return xyz_path[:, :, :c], chi2_path[:c]
+        return xyz_path[:, :, :c], chi2_path[:c], temp_path[:c], rmsd_path[:c], pcd
