@@ -20,6 +20,7 @@ import numpy as np
 import pandas as pd
 import scipy.io
 from scipy import interpolate
+from scipy import spatial
 
 ######
 class Molecule:
@@ -779,7 +780,7 @@ class Structure_pool_method:
         starting_xyz,
         displacements,
         wavenumbers,
-        experiment_pcd,
+        target_pcd,
         qvector,
         nsteps=10000,
         convergence_value=0.001,
@@ -835,23 +836,32 @@ class Structure_pool_method:
             rmsd = (rmsd / natom) ** 0.5
             return rmsd
 
+        def rmsd_kabsch(xyz, xyz_, indices):
+            """RMSD between xyz and xyz_ for atom indices"""
+            # first rotate xyz to have max coincidence with xyz_
+            estimated_rotation, rmsd = spatial.transform.Rotation.align_vectors(
+                xyz[indices, :], xyz_[indices, :]
+            )
+            return rmsd
+
         # start loop
         non_h_indices = [0, 1, 3, 5, 6, 10, 12]
         print(atomlist[non_h_indices])
-        #non_h_indices = [0]
+        # non_h_indices = [0]
         starting_temp = 1.0
         a = starting_temp  # "temperature"
         chi2 = 1e9  # arbitrarily large start value
         c = -1  # counter for acceptances
-        chi2_path, temp_path, rmsd_path = (
+        chi2_path, temp_path, rmsd_path, rmsd_path_old = (
+            np.zeros(nsteps),
             np.zeros(nsteps),
             np.zeros(nsteps),
             np.zeros(nsteps),
         )
         for i in range(nsteps):
             xyz_ = random_displace_xyz(xyz, a)
-            pcd = pcd_iam(xyz_)  # IAM percent difference from reference
-            chi2_ = chi2_value(pcd, experiment_pcd)
+            pcd_ = pcd_iam(xyz_)  # IAM percent difference from reference
+            chi2_ = chi2_value(pcd_, target_pcd)
             if (chi2_ < chi2) or (a > np.random.rand()):  # acceptance criteria
                 c += 1  # count acceptances
                 # a = 0.5 * (1 - starting_temp * (c + 1) / nsteps)  # decrease temperature
@@ -860,12 +870,16 @@ class Structure_pool_method:
                 chi2, xyz = chi2_, xyz_  # update values
                 chi2_path[c] = chi2
                 temp_path[c] = a
-                rmsd_path[c] = rmsd_atoms(xyz, displaced_xyz, non_h_indices)
+                rmsd_path[c] = rmsd_kabsch(xyz, displaced_xyz, non_h_indices)
+                pcd = pcd_  # at end of loop this is the last accepted pcd
+                #rmsd_path_old[c] = rmsd_atoms(xyz, displaced_xyz, non_h_indices)
                 if save_xyz_path:
                     xyz_path[:, :, c] = xyz  # store minimisation pathway
                 if print_values:
                     print("a = %f" % a)
                     print("chi2 = %f" % chi2)
-            if chi2 < convergence_value:
-                break
-        return xyz_path[:, :, :c], chi2_path[:c], temp_path[:c], rmsd_path[:c], pcd
+                if chi2 < convergence_value:
+                    print('reached convergence value!')
+                    break
+        final_xyz, final_pcd, final_temp = xyz, pcd, a
+        return xyz_path[:, :, :c], chi2_path[:c], rmsd_path[:c], final_temp, final_pcd, final_xyz

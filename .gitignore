@@ -12,6 +12,7 @@ notebooks/*.png
 notebooks/*.np[yz]
 *.xyz
 data/*
+data_*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
