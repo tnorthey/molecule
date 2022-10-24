@@ -13,6 +13,8 @@ notebooks/*.np[yz]
 *.xyz
 data/*
 data_*
+slides/*
+chd_trajectories/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -783,9 +783,10 @@ class Structure_pool_method:
         target_pcd,
         qvector,
         nsteps=10000,
+        nruns=10,
         convergence_value=0.001,
-        cooling_rate=4.0,
         step_size=0.1,
+        starting_temp=1.0,
         save_xyz_path=False,
         print_values=False,
     ):
@@ -800,7 +801,7 @@ class Structure_pool_method:
         xyz_path = np.zeros((natom, 3, nsteps))
         xyz = starting_xyz  # start at starting xyz
         # reference IAM curve
-        reference_xyz_file = "xyz/nmm.xyz"
+        reference_xyz_file = "xyz/chd.xyz"
         _, _, atomlist, reference_xyz = m.read_xyz(reference_xyz_file)
         atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
         reference_iam = x.iam_calc(atomic_numbers, xyz, qvector)
@@ -808,7 +809,7 @@ class Structure_pool_method:
         # if using displaced theoretical structure (for RMSD)
         testing_rmsd_bool = True
         if testing_rmsd_bool:
-            xyz_file = "xyz/nmm_displaced.xyz"
+            xyz_file = "xyz/chd_target.xyz"
             _, _, _, displaced_xyz = m.read_xyz(xyz_file)
 
         def pcd_iam(xyz):
@@ -845,41 +846,58 @@ class Structure_pool_method:
             return rmsd
 
         # start loop
-        non_h_indices = [0, 1, 3, 5, 6, 10, 12]
+        # non_h_indices = [0, 1, 3, 5, 6, 10, 12]
+        non_h_indices = [0, 1, 2, 3, 4, 5]
         print(atomlist[non_h_indices])
-        # non_h_indices = [0]
-        starting_temp = 1.0
-        a = starting_temp  # "temperature"
-        chi2 = 1e9  # arbitrarily large start value
-        c = -1  # counter for acceptances
-        chi2_path, temp_path, rmsd_path, rmsd_path_old = (
-            np.zeros(nsteps),
-            np.zeros(nsteps),
-            np.zeros(nsteps),
-            np.zeros(nsteps),
+        final_chi2 = 1e9  # arbitrarily large start value
+        for j in range(nruns):
+            print(j)
+            xyz = starting_xyz
+            temp = starting_temp
+            chi2 = 1e9  # arbitrarily large start value
+            c = -1  # counter for acceptances
+            chi2_path, rmsd_path = (
+                np.zeros(nsteps),
+                np.zeros(nsteps),
+            )
+            for i in range(nsteps):
+                xyz_ = random_displace_xyz(xyz, temp)
+                pcd_ = pcd_iam(xyz_)  # IAM percent difference from reference
+                chi2_ = chi2_value(pcd_, target_pcd)
+                if (chi2_ < chi2) or (temp > np.random.rand()):  # acceptance criteria
+                    c += 1  # count acceptances
+                    temp = starting_temp * (1 - c / nsteps)  # decrease temperature
+                    # a = starting_temp * np.exp(-cooling_rate * c / nsteps)  # decrease temperature
+                    chi2, pcd, xyz = chi2_, pcd_, xyz_  # update values
+                    chi2_path[c] = chi2
+                    rmsd_path[c] = rmsd_kabsch(xyz, displaced_xyz, non_h_indices)
+                    if save_xyz_path:
+                        xyz_path[:, :, c] = xyz  # store minimisation pathway
+                    if print_values:
+                        print("temp = %f" % temp)
+                        print("chi2 = %f" % chi2)
+                    if chi2 < convergence_value:
+                        print("reached convergence value!")
+                        break
+                final_chi2_, final_xyz_, final_pcd_, final_temp_ = chi2, xyz, pcd, temp
+            if final_chi2_ < final_chi2:
+                print("c = %i" % c)
+                print("final_chi2 < previous")
+                final_chi2, final_xyz, final_pcd, final_temp = chi2, xyz, pcd, temp
+                best_chi2_path, best_rmsd_path, best_xyz_path = (
+                    chi2_path[: c + 1],
+                    rmsd_path[: c + 1],
+                    xyz_path[:, :, : c + 1],
+                )
+                print(best_chi2_path)
+            print("chi2 best: %f" % final_chi2)
+
+        return (
+            best_chi2_path,
+            best_rmsd_path,
+            best_xyz_path,
+            final_chi2,
+            final_temp,
+            final_pcd,
+            final_xyz,
         )
-        for i in range(nsteps):
-            xyz_ = random_displace_xyz(xyz, a)
-            pcd_ = pcd_iam(xyz_)  # IAM percent difference from reference
-            chi2_ = chi2_value(pcd_, target_pcd)
-            if (chi2_ < chi2) or (a > np.random.rand()):  # acceptance criteria
-                c += 1  # count acceptances
-                # a = 0.5 * (1 - starting_temp * (c + 1) / nsteps)  # decrease temperature
-                # a = 0.5 * (starting_temp - c / nsteps)  # decrease temperature
-                a = 0.5 * np.exp(-cooling_rate * c / nsteps)  # decrease temperature
-                chi2, xyz = chi2_, xyz_  # update values
-                chi2_path[c] = chi2
-                temp_path[c] = a
-                rmsd_path[c] = rmsd_kabsch(xyz, displaced_xyz, non_h_indices)
-                pcd = pcd_  # at end of loop this is the last accepted pcd
-                #rmsd_path_old[c] = rmsd_atoms(xyz, displaced_xyz, non_h_indices)
-                if save_xyz_path:
-                    xyz_path[:, :, c] = xyz  # store minimisation pathway
-                if print_values:
-                    print("a = %f" % a)
-                    print("chi2 = %f" % chi2)
-                if chi2 < convergence_value:
-                    print('reached convergence value!')
-                    break
-        final_xyz, final_pcd, final_temp = xyz, pcd, a
-        return xyz_path[:, :, :c], chi2_path[:c], rmsd_path[:c], final_temp, final_pcd, final_xyz

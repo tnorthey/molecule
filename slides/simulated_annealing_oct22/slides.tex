@@ -1,0 +1,2584 @@
+\documentclass{beamer}
+\usetheme{default}
+
+\usepackage{caption}
+\usepackage{subcaption}
+
+% width of figures
+\newcommand\w{0.32}
+
+\title{Simulated annealing results}
+\author{T.\ Northey}
+\date{Oct 2022}
+\begin{document}
+\begin{frame}[plain]
+    \maketitle
+\end{frame}
+
+\begin{frame}
+\begin{columns}
+	\begin{column}{0.5\textwidth}
+		%\begin{itemize}
+		The molecular coordinates move iteratively according to,
+		\[
+			\textbf{R}_{i+1} = \textbf{R}_{i} + \Delta s\sum_{k=0}^{\textrm{modes}} \Big(\frac{\omega_0}{\omega_k}\Big) a_k\hat{d}_k
+		\]
+		for step-size $\Delta s$, displacement unit vectors $\hat{d}_k$, and wavenumbers $\omega_k$ for each normal mode. The factors $a_k$ are obtained from a uniform random distribution with range $[-T, T]$, for temperature $T$.
+		%\end{itemize}
+	\end{column}
+	\begin{column}{0.5\textwidth}
+		The temperature decreases linearly at iteration $i$ as,
+		\[
+		%T_i = T_0\exp(-\gamma i / N)
+			T_i = T_0(1 - i / N)
+		\]
+		for starting temperature $T_0\in(0, 1]$, and total iterations $N$.
+
+		After each iteration, if the error function $\chi^2$ decreases the iteration is accepted
+		\[
+		i\rightarrow i+1
+		\]
+		If not, the iteration can still be accepted with probability,
+		\[
+		P = T_i
+		\]
+	\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Noise}
+\begin{columns}
+	\begin{column}{0.5\textwidth}
+		The noise is generated at the $j$th grid value of $q$ by another uniform random distribution,
+		\[
+			r(q_j) = 1 - [-\eta, \eta]_j
+		\]
+		for noise parameter $\eta\in[0, 1]$, and then the target percent difference $\%\Delta I(q)$ is multiplied by $r(q)$. Example, if $\eta = 0.1$, then each point is muliplied by a random factor in the range $[0.9, 1.1]$.
+	\end{column}
+	\begin{column}{0.5\textwidth}
+
+	\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{$ q_{\textrm{max}}=2.0 $ \AA $^{-1}, \eta=0.00, \Delta s=0.01, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.01_gamma_4.0_qmax_2.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.01_gamma_4.0_qmax_2.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.01_gamma_4.0_qmax_2.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=4.0 $ \AA $^{-1}, \eta=0.00, \Delta s=0.01, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.01_gamma_4.0_qmax_4.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.01_gamma_4.0_qmax_4.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.01_gamma_4.0_qmax_4.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=8.0 $ \AA $^{-1}, \eta=0.00, \Delta s=0.01, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.01_gamma_4.0_qmax_8.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.01_gamma_4.0_qmax_8.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.01_gamma_4.0_qmax_8.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=16.0 $ \AA $^{-1}, \eta=0.00, \Delta s=0.01, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.01_gamma_4.0_qmax_16.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.01_gamma_4.0_qmax_16.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.01_gamma_4.0_qmax_16.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=2.0 $ \AA $^{-1}, \eta=0.10, \Delta s=0.01, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.01_gamma_4.0_qmax_2.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.01_gamma_4.0_qmax_2.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.01_gamma_4.0_qmax_2.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=4.0 $ \AA $^{-1}, \eta=0.10, \Delta s=0.01, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.01_gamma_4.0_qmax_4.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.01_gamma_4.0_qmax_4.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.01_gamma_4.0_qmax_4.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=8.0 $ \AA $^{-1}, \eta=0.10, \Delta s=0.01, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.01_gamma_4.0_qmax_8.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.01_gamma_4.0_qmax_8.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.01_gamma_4.0_qmax_8.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=16.0 $ \AA $^{-1}, \eta=0.10, \Delta s=0.01, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.01_gamma_4.0_qmax_16.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.01_gamma_4.0_qmax_16.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.01_gamma_4.0_qmax_16.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=2.0 $ \AA $^{-1}, \eta=0.50, \Delta s=0.01, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.01_gamma_4.0_qmax_2.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.01_gamma_4.0_qmax_2.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.01_gamma_4.0_qmax_2.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=4.0 $ \AA $^{-1}, \eta=0.50, \Delta s=0.01, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.01_gamma_4.0_qmax_4.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.01_gamma_4.0_qmax_4.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.01_gamma_4.0_qmax_4.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=8.0 $ \AA $^{-1}, \eta=0.50, \Delta s=0.01, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.01_gamma_4.0_qmax_8.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.01_gamma_4.0_qmax_8.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.01_gamma_4.0_qmax_8.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=16.0 $ \AA $^{-1}, \eta=0.50, \Delta s=0.01, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.01_gamma_4.0_qmax_16.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.01_gamma_4.0_qmax_16.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.01_gamma_4.0_qmax_16.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=2.0 $ \AA $^{-1}, \eta=0.00, \Delta s=0.01, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.01_gamma_8.0_qmax_2.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.01_gamma_8.0_qmax_2.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.01_gamma_8.0_qmax_2.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=4.0 $ \AA $^{-1}, \eta=0.00, \Delta s=0.01, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.01_gamma_8.0_qmax_4.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.01_gamma_8.0_qmax_4.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.01_gamma_8.0_qmax_4.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=8.0 $ \AA $^{-1}, \eta=0.00, \Delta s=0.01, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.01_gamma_8.0_qmax_8.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.01_gamma_8.0_qmax_8.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.01_gamma_8.0_qmax_8.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=16.0 $ \AA $^{-1}, \eta=0.00, \Delta s=0.01, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.01_gamma_8.0_qmax_16.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.01_gamma_8.0_qmax_16.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.01_gamma_8.0_qmax_16.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=2.0 $ \AA $^{-1}, \eta=0.10, \Delta s=0.01, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.01_gamma_8.0_qmax_2.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.01_gamma_8.0_qmax_2.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.01_gamma_8.0_qmax_2.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=4.0 $ \AA $^{-1}, \eta=0.10, \Delta s=0.01, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.01_gamma_8.0_qmax_4.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.01_gamma_8.0_qmax_4.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.01_gamma_8.0_qmax_4.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=8.0 $ \AA $^{-1}, \eta=0.10, \Delta s=0.01, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.01_gamma_8.0_qmax_8.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.01_gamma_8.0_qmax_8.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.01_gamma_8.0_qmax_8.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=16.0 $ \AA $^{-1}, \eta=0.10, \Delta s=0.01, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.01_gamma_8.0_qmax_16.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.01_gamma_8.0_qmax_16.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.01_gamma_8.0_qmax_16.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=2.0 $ \AA $^{-1}, \eta=0.50, \Delta s=0.01, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.01_gamma_8.0_qmax_2.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.01_gamma_8.0_qmax_2.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.01_gamma_8.0_qmax_2.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=4.0 $ \AA $^{-1}, \eta=0.50, \Delta s=0.01, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.01_gamma_8.0_qmax_4.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.01_gamma_8.0_qmax_4.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.01_gamma_8.0_qmax_4.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=8.0 $ \AA $^{-1}, \eta=0.50, \Delta s=0.01, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.01_gamma_8.0_qmax_8.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.01_gamma_8.0_qmax_8.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.01_gamma_8.0_qmax_8.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=16.0 $ \AA $^{-1}, \eta=0.50, \Delta s=0.01, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.01_gamma_8.0_qmax_16.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.01_gamma_8.0_qmax_16.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.01_gamma_8.0_qmax_16.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=2.0 $ \AA $^{-1}, \eta=0.00, \Delta s=0.10, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.10_gamma_4.0_qmax_2.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.10_gamma_4.0_qmax_2.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.10_gamma_4.0_qmax_2.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=4.0 $ \AA $^{-1}, \eta=0.00, \Delta s=0.10, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.10_gamma_4.0_qmax_4.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.10_gamma_4.0_qmax_4.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.10_gamma_4.0_qmax_4.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=8.0 $ \AA $^{-1}, \eta=0.00, \Delta s=0.10, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.10_gamma_4.0_qmax_8.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.10_gamma_4.0_qmax_8.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.10_gamma_4.0_qmax_8.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=16.0 $ \AA $^{-1}, \eta=0.00, \Delta s=0.10, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.10_gamma_4.0_qmax_16.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.10_gamma_4.0_qmax_16.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.10_gamma_4.0_qmax_16.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=2.0 $ \AA $^{-1}, \eta=0.10, \Delta s=0.10, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.10_gamma_4.0_qmax_2.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.10_gamma_4.0_qmax_2.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.10_gamma_4.0_qmax_2.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=4.0 $ \AA $^{-1}, \eta=0.10, \Delta s=0.10, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.10_gamma_4.0_qmax_4.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.10_gamma_4.0_qmax_4.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.10_gamma_4.0_qmax_4.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=8.0 $ \AA $^{-1}, \eta=0.10, \Delta s=0.10, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.10_gamma_4.0_qmax_8.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.10_gamma_4.0_qmax_8.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.10_gamma_4.0_qmax_8.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=16.0 $ \AA $^{-1}, \eta=0.10, \Delta s=0.10, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.10_gamma_4.0_qmax_16.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.10_gamma_4.0_qmax_16.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.10_gamma_4.0_qmax_16.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=2.0 $ \AA $^{-1}, \eta=0.50, \Delta s=0.10, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.10_gamma_4.0_qmax_2.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.10_gamma_4.0_qmax_2.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.10_gamma_4.0_qmax_2.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=4.0 $ \AA $^{-1}, \eta=0.50, \Delta s=0.10, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.10_gamma_4.0_qmax_4.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.10_gamma_4.0_qmax_4.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.10_gamma_4.0_qmax_4.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=8.0 $ \AA $^{-1}, \eta=0.50, \Delta s=0.10, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.10_gamma_4.0_qmax_8.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.10_gamma_4.0_qmax_8.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.10_gamma_4.0_qmax_8.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=16.0 $ \AA $^{-1}, \eta=0.50, \Delta s=0.10, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.10_gamma_4.0_qmax_16.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.10_gamma_4.0_qmax_16.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.10_gamma_4.0_qmax_16.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=2.0 $ \AA $^{-1}, \eta=0.00, \Delta s=0.10, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.10_gamma_8.0_qmax_2.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.10_gamma_8.0_qmax_2.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.10_gamma_8.0_qmax_2.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=4.0 $ \AA $^{-1}, \eta=0.00, \Delta s=0.10, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.10_gamma_8.0_qmax_4.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.10_gamma_8.0_qmax_4.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.10_gamma_8.0_qmax_4.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=8.0 $ \AA $^{-1}, \eta=0.00, \Delta s=0.10, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.10_gamma_8.0_qmax_8.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.10_gamma_8.0_qmax_8.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.10_gamma_8.0_qmax_8.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=16.0 $ \AA $^{-1}, \eta=0.00, \Delta s=0.10, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.10_gamma_8.0_qmax_16.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.10_gamma_8.0_qmax_16.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.10_gamma_8.0_qmax_16.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=2.0 $ \AA $^{-1}, \eta=0.10, \Delta s=0.10, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.10_gamma_8.0_qmax_2.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.10_gamma_8.0_qmax_2.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.10_gamma_8.0_qmax_2.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=4.0 $ \AA $^{-1}, \eta=0.10, \Delta s=0.10, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.10_gamma_8.0_qmax_4.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.10_gamma_8.0_qmax_4.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.10_gamma_8.0_qmax_4.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=8.0 $ \AA $^{-1}, \eta=0.10, \Delta s=0.10, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.10_gamma_8.0_qmax_8.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.10_gamma_8.0_qmax_8.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.10_gamma_8.0_qmax_8.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=16.0 $ \AA $^{-1}, \eta=0.10, \Delta s=0.10, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.10_gamma_8.0_qmax_16.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.10_gamma_8.0_qmax_16.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.10_gamma_8.0_qmax_16.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=2.0 $ \AA $^{-1}, \eta=0.50, \Delta s=0.10, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.10_gamma_8.0_qmax_2.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.10_gamma_8.0_qmax_2.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.10_gamma_8.0_qmax_2.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=4.0 $ \AA $^{-1}, \eta=0.50, \Delta s=0.10, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.10_gamma_8.0_qmax_4.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.10_gamma_8.0_qmax_4.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.10_gamma_8.0_qmax_4.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=8.0 $ \AA $^{-1}, \eta=0.50, \Delta s=0.10, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.10_gamma_8.0_qmax_8.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.10_gamma_8.0_qmax_8.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.10_gamma_8.0_qmax_8.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=16.0 $ \AA $^{-1}, \eta=0.50, \Delta s=0.10, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_0.10_gamma_8.0_qmax_16.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_0.10_gamma_8.0_qmax_16.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_0.10_gamma_8.0_qmax_16.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=2.0 $ \AA $^{-1}, \eta=0.00, \Delta s=1.00, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_1.00_gamma_4.0_qmax_2.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_1.00_gamma_4.0_qmax_2.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_1.00_gamma_4.0_qmax_2.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=4.0 $ \AA $^{-1}, \eta=0.00, \Delta s=1.00, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_1.00_gamma_4.0_qmax_4.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_1.00_gamma_4.0_qmax_4.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_1.00_gamma_4.0_qmax_4.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=8.0 $ \AA $^{-1}, \eta=0.00, \Delta s=1.00, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_1.00_gamma_4.0_qmax_8.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_1.00_gamma_4.0_qmax_8.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_1.00_gamma_4.0_qmax_8.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=16.0 $ \AA $^{-1}, \eta=0.00, \Delta s=1.00, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_1.00_gamma_4.0_qmax_16.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_1.00_gamma_4.0_qmax_16.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_1.00_gamma_4.0_qmax_16.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=2.0 $ \AA $^{-1}, \eta=0.10, \Delta s=1.00, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_1.00_gamma_4.0_qmax_2.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_1.00_gamma_4.0_qmax_2.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_1.00_gamma_4.0_qmax_2.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=4.0 $ \AA $^{-1}, \eta=0.10, \Delta s=1.00, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_1.00_gamma_4.0_qmax_4.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_1.00_gamma_4.0_qmax_4.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_1.00_gamma_4.0_qmax_4.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=8.0 $ \AA $^{-1}, \eta=0.10, \Delta s=1.00, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_1.00_gamma_4.0_qmax_8.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_1.00_gamma_4.0_qmax_8.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_1.00_gamma_4.0_qmax_8.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=16.0 $ \AA $^{-1}, \eta=0.10, \Delta s=1.00, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_1.00_gamma_4.0_qmax_16.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_1.00_gamma_4.0_qmax_16.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_1.00_gamma_4.0_qmax_16.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=2.0 $ \AA $^{-1}, \eta=0.50, \Delta s=1.00, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_1.00_gamma_4.0_qmax_2.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_1.00_gamma_4.0_qmax_2.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_1.00_gamma_4.0_qmax_2.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=4.0 $ \AA $^{-1}, \eta=0.50, \Delta s=1.00, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_1.00_gamma_4.0_qmax_4.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_1.00_gamma_4.0_qmax_4.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_1.00_gamma_4.0_qmax_4.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=8.0 $ \AA $^{-1}, \eta=0.50, \Delta s=1.00, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_1.00_gamma_4.0_qmax_8.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_1.00_gamma_4.0_qmax_8.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_1.00_gamma_4.0_qmax_8.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=16.0 $ \AA $^{-1}, \eta=0.50, \Delta s=1.00, \gamma=4.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_1.00_gamma_4.0_qmax_16.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_1.00_gamma_4.0_qmax_16.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_1.00_gamma_4.0_qmax_16.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=2.0 $ \AA $^{-1}, \eta=0.00, \Delta s=1.00, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_1.00_gamma_8.0_qmax_2.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_1.00_gamma_8.0_qmax_2.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_1.00_gamma_8.0_qmax_2.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=4.0 $ \AA $^{-1}, \eta=0.00, \Delta s=1.00, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_1.00_gamma_8.0_qmax_4.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_1.00_gamma_8.0_qmax_4.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_1.00_gamma_8.0_qmax_4.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=8.0 $ \AA $^{-1}, \eta=0.00, \Delta s=1.00, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_1.00_gamma_8.0_qmax_8.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_1.00_gamma_8.0_qmax_8.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_1.00_gamma_8.0_qmax_8.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=16.0 $ \AA $^{-1}, \eta=0.00, \Delta s=1.00, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_1.00_gamma_8.0_qmax_16.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_1.00_gamma_8.0_qmax_16.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_1.00_gamma_8.0_qmax_16.0_noise_0.00.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=2.0 $ \AA $^{-1}, \eta=0.10, \Delta s=1.00, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_1.00_gamma_8.0_qmax_2.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_1.00_gamma_8.0_qmax_2.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_1.00_gamma_8.0_qmax_2.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=4.0 $ \AA $^{-1}, \eta=0.10, \Delta s=1.00, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_1.00_gamma_8.0_qmax_4.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_1.00_gamma_8.0_qmax_4.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_1.00_gamma_8.0_qmax_4.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=8.0 $ \AA $^{-1}, \eta=0.10, \Delta s=1.00, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_1.00_gamma_8.0_qmax_8.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_1.00_gamma_8.0_qmax_8.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_1.00_gamma_8.0_qmax_8.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=16.0 $ \AA $^{-1}, \eta=0.10, \Delta s=1.00, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_1.00_gamma_8.0_qmax_16.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_1.00_gamma_8.0_qmax_16.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_1.00_gamma_8.0_qmax_16.0_noise_0.10.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=2.0 $ \AA $^{-1}, \eta=0.50, \Delta s=1.00, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_1.00_gamma_8.0_qmax_2.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_1.00_gamma_8.0_qmax_2.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_1.00_gamma_8.0_qmax_2.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=4.0 $ \AA $^{-1}, \eta=0.50, \Delta s=1.00, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_1.00_gamma_8.0_qmax_4.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_1.00_gamma_8.0_qmax_4.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_1.00_gamma_8.0_qmax_4.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=8.0 $ \AA $^{-1}, \eta=0.50, \Delta s=1.00, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_1.00_gamma_8.0_qmax_8.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_1.00_gamma_8.0_qmax_8.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_1.00_gamma_8.0_qmax_8.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\begin{frame}{$ q_{\textrm{max}}=16.0 $ \AA $^{-1}, \eta=0.50, \Delta s=1.00, \gamma=8.0$}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_chi2_stepsize_1.00_gamma_8.0_qmax_16.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{nmm_rmsd_stepsize_1.00_gamma_8.0_qmax_16.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{nmm_pcdfit_stepsize_1.00_gamma_8.0_qmax_16.0_noise_0.50.png}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+ 
+\end{document}

@@ -1,0 +1,34 @@
+\begin{frame}{TITLE}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+			\centering
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{CHI2_GRAPH}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\begin{subfigure}[b]{\textwidth}
+				\centering
+				% left, bottom, right, top
+				\includegraphics[width=\textwidth, trim= 0 0 0 0, clip]{RMSD_GRAPH}
+				%\caption{}
+				\label{fig:}
+			\end{subfigure}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=\textwidth]{PCDFIT_GRAPH}
+				%\caption{}
+				\label{fig:}
+			\end{figure}
+			\begin{itemize}
+				\item 10 simulated annealing runs; top-left: $\chi^2$, bottom-left: RMSD, above: $\%\Delta I(q)$ fits to the target curve.
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}

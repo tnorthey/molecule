@@ -92,7 +92,7 @@ for i in range(nruns):
     print("Final chi^2 value: %f" % chi2_path[-1])
 
 # save to file
-data_file = "data_stepsize_%2.1f_gamma_%2.1f_qmax_%2.1f_noise_%3.2f.npz" % (
+data_file = "data_stepsize_%3.2f_gamma_%2.1f_qmax_%2.1f_noise_%3.2f.npz" % (
     step_size,
     cooling_rate,
     qmax,
@@ -102,6 +102,7 @@ np.savez(
     data_file,
     cooling_rate=cooling_rate,
     step_size=step_size,
+    noise_factor=noise_factor,
     qvector=qvector,
     target_pcd=target_pcd,
     final_pcd_array=final_pcd_array,

@@ -1,0 +1,7 @@
+egin{frame}{t}
+ % start the columns environment
+ egin{columns}
+ % Column 1
+ egin{column}{.5	extwidth}
+ egin{figure}[H]
+ 
