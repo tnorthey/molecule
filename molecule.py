@@ -891,7 +891,6 @@ class Structure_pool_method:
                 )
                 print(best_chi2_path)
             print("chi2 best: %f" % final_chi2)
-
         return (
             best_chi2_path,
             best_rmsd_path,
@@ -899,5 +898,155 @@ class Structure_pool_method:
             final_chi2,
             final_temp,
             final_pcd,
+            final_xyz,
+        )
+
+    def pcd_iam(self, xyz, atomic_numbers, qvector, reference_iam):
+        iam = x.iam_calc(atomic_numbers, xyz, qvector)
+        return 100 * (iam / reference_iam - 1)
+
+    def chi2_value(self, x, y):
+        chi2 = np.sum((x - y) ** 2)
+        chi2 /= len(x)  # normalise by len(q)
+        return chi2
+
+    def rmsd_atoms(self, xyz, xyz_, indices):
+        """RMSD between xyz and xyz_ for atom indices"""
+        natoms = len(indices)
+        rmsd = 0.0
+        for i in range(natoms):
+            rmsd += np.sum((xyz[indices[i], :] - xyz_[indices[i], :]) ** 2)
+        rmsd = (rmsd / natoms) ** 0.5
+        return rmsd
+
+    def rmsd_kabsch(self, xyz, xyz_, indices):
+        """RMSD between xyz and xyz_ for atom indices"""
+        # first rotate xyz to have max coincidence with xyz_
+        estimated_rotation, rmsd = spatial.transform.Rotation.align_vectors(
+            xyz[indices, :], xyz_[indices, :]
+        )
+        return rmsd
+
+    def simulated_annealing_new(
+        self,
+        title,
+        starting_xyz,
+        displacements,
+        wavenumbers,
+        target_pcd,
+        qvector,
+        nsteps=10000,
+        nruns=10,
+        convergence_value=0.0001,
+        step_size=0.1,
+        starting_temp=1.0,
+        save_xyz_path=False,
+        print_values=False,
+        target_rmsd_bool=False,
+    ):
+        """simulated annealing minimisation to experiment,
+        displace along each mode according to 'temperature' at each step"""
+        qmax = qvector[-1]
+        run_name_string = "%s_qmax_%2.1f_T0_%2.1f_ds_%2.1f_N_%i_Nruns_%i" % (
+            title,
+            qmax,
+            starting_temp,
+            step_size,
+            nsteps,
+            nruns,
+        )
+        natoms = starting_xyz.shape[0]
+        nmodes = len(wavenumbers)
+        modes = list(range(nmodes))
+        displacement_factors = self.displacements_from_wavenumbers(
+            wavenumbers, step_size
+        )
+        xyz_path = np.zeros((natoms, 3, nsteps))
+        xyz = starting_xyz  # start at starting xyz
+        # reference IAM curve
+        reference_xyz_file = "xyz/%s.xyz" % title
+        _, _, atomlist, reference_xyz = m.read_xyz(reference_xyz_file)
+        atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
+        reference_iam = x.iam_calc(atomic_numbers, reference_xyz, qvector)
+
+        # if using displaced theoretical structure (for RMSD)
+        if target_rmsd_bool:
+            _, _, _, target_xyz = m.read_xyz("xyz/%s_target.xyz" % title)
+
+        def random_displace_xyz(xyz, a):
+            factors = self.uniform_factors(
+                nmodes, displacement_factors
+            )  # random factors
+            xyz = nm.nm_displacer(xyz, displacements, modes, a * factors)
+            return xyz
+
+        # start loop
+        # non_h_indices = [0, 1, 3, 5, 6, 10, 12]
+        non_h_indices = [0, 1, 2, 3, 4, 5]
+        print(atomlist[non_h_indices])
+        final_chi2 = 1e9  # arbitrarily large start value
+        for run in range(nruns):
+            print(run)
+            xyz = starting_xyz
+            temp = starting_temp
+            chi2 = 1e9  # arbitrarily large start value
+            c = -1  # counter for acceptances
+            chi2_path, rmsd_path = (
+                np.zeros(nsteps),
+                np.zeros(nsteps),
+            )
+            for i in range(nsteps):
+                xyz_ = random_displace_xyz(xyz, temp)
+                pcd_ = self.pcd_iam(
+                    xyz_, atomic_numbers, qvector, reference_iam
+                )  # IAM percent difference from reference
+                chi2_ = self.chi2_value(pcd_, target_pcd)
+                # save time by breaking out of slowly decreasing runs
+                if i == 100:
+                    if run > 1:
+                        if chi2_ > chi2_100:
+                            break
+                    chi2_100 = chi2_
+                if (chi2_ < chi2) or (temp > np.random.rand()):  # acceptance criteria
+                    c += 1  # count acceptances
+                    temp = starting_temp * (1 - c / nsteps)  # decrease temperature
+                    chi2, pcd, xyz = chi2_, pcd_, xyz_  # update values
+                    chi2_path[c] = chi2
+                    rmsd_path[c] = self.rmsd_kabsch(xyz, target_xyz, non_h_indices)
+                    if save_xyz_path:
+                        xyz_path[:, :, c] = xyz  # store minimisation pathway
+                    if print_values:
+                        print("temp = %f" % temp)
+                        print("chi2 = %f" % chi2)
+                    if chi2 < convergence_value:
+                        print("reached convergence value!")
+                        break
+                final_chi2_, final_xyz_, final_pcd_, final_temp_ = chi2, xyz, pcd, temp
+            if final_chi2_ < final_chi2:
+                print("c = %i" % c)
+                print("final_chi2 < previous")
+                final_chi2, final_xyz, final_pcd, final_temp = chi2, xyz, pcd, temp
+                best_chi2_path, best_rmsd_path, best_xyz_path = (
+                    chi2_path[: c + 1],
+                    rmsd_path[: c + 1],
+                    xyz_path[:, :, : c + 1],
+                )
+                print(best_chi2_path)
+            print("chi2 best: %f" % final_chi2)
+        write_final_xyz = True
+        if write_final_xyz:
+            m.write_xyz('final_%s.xyz' % run_name_string, 'final_xyz', atomlist, final_xyz)
+        qvector = np.linspace(0, 8, 79, endpoint=True)
+        reference_iam = x.iam_calc(atomic_numbers, reference_xyz, qvector)
+        final_pcd_q8 = self.pcd_iam(final_xyz, atomic_numbers, qvector, reference_iam)
+        return (
+            run_name_string,
+            best_chi2_path,
+            best_rmsd_path,
+            best_xyz_path,
+            final_chi2,
+            final_temp,
+            final_pcd,
+            final_pcd_q8,
             final_xyz,
         )
