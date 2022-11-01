@@ -9,7 +9,7 @@ step_size       = float( sys.argv[3] )
 starting_temp   = float( sys.argv[4] )
 nsteps          = int(   sys.argv[5] )
 nruns           = int(   sys.argv[6] )
-ntimesteps      = int(   sys.argv[7] )
+ntsteps      = int(   sys.argv[7] )
 
 m = molecule.Molecule()
 nm = molecule.Normal_modes()
@@ -28,20 +28,15 @@ natom = starting_xyz.shape[0]
 displacements = nm.read_nm_displacements(nmfile, natom)
 
 # "experiment" target percent diff
-target_pcd_array = np.zeros((qlen, ntimesteps))
-target_xyz_array = np.zeros((natom, 3, ntimesteps))
-target_sum_sqrt_distances = np.zeros(ntimesteps)
-### read_xyz_traj doesn't exist! Write it!
-#_, _, _, xyz_traj = m.read_xyz_traj("xyz/chd_target_traj.xyz", ntsteps)
-####
-for t in range(ntimesteps):
-    _, _, _, xyz_target = m.read_xyz("xyz/chd_target_t%s.xyz" % str(t).zfill(2))
-    target_xyz_array[:, :, t] = xyz_target
+target_pcd_array = np.zeros((qlen, ntsteps))
+target_xyz_array = np.zeros((natom, 3, ntsteps))
+target_sum_sqrt_distances = np.zeros(ntsteps)
+_, _, _, target_xyz_array = m.read_xyz_traj("xyz/chd_target_traj.xyz", ntsteps)
+for t in range(ntsteps):
     non_h_indices = [0, 1, 2, 3, 4, 5]
-    distances = m.distances_array(xyz_target[non_h_indices])
+    distances = m.distances_array(target_xyz_array[non_h_indices, : , t])
     target_sum_sqrt_distances[t] = np.sum(distances**1.0)
-    #target_iam = x.iam_calc(atomic_numbers, xyz_traj[:, : , t], qvector)
-    target_iam = x.iam_calc(atomic_numbers, xyz_target, qvector)
+    target_iam = x.iam_calc(atomic_numbers, target_xyz_array[:, : , t], qvector)
     target_pcd_array[:, t] = 100 * (target_iam / starting_iam - 1)
 
 # run sim annealing

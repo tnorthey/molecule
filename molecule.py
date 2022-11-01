@@ -78,7 +78,9 @@ class Molecule:
         atomarray = np.loadtxt(fname, skiprows=2, max_rows=14, dtype=str, usecols=[0])
         xyztraj = np.zeros((natoms, 3, ntsteps))
         for t in range(ntsteps):
-            xyztraj[:, :, t] = np.loadtxt(fname, skiprows=14*t+2*(t+1), max_rows=14, usecols=[1, 2, 3])
+            xyztraj[:, :, t] = np.loadtxt(
+                fname, skiprows=14 * t + 2 * (t + 1), max_rows=14, usecols=[1, 2, 3]
+            )
             print(xyztraj[:, :, t])
         return natoms, comment, atomarray, xyztraj
 
@@ -931,9 +933,7 @@ class Structure_pool_method:
     def rmsd_kabsch(self, xyz, xyz_, indices):
         """RMSD between xyz and xyz_ for atom indices"""
         # first rotate xyz to have max coincidence with xyz_
-        estimated_rotation, rmsd = R.align_vectors(
-            xyz[indices, :], xyz_[indices, :]
-        )
+        estimated_rotation, rmsd = R.align_vectors(xyz[indices, :], xyz_[indices, :])
         return rmsd, estimated_rotation
 
     def simulated_annealing(
@@ -966,6 +966,8 @@ class Structure_pool_method:
             nsteps,
             nruns,
         )
+        restart_thresh = 0.001  # if chi2 > this the loop restarts
+        revert_thresh_count = 20  # resets to starting_xyz after this many resets
         ntimesteps = target_pcd_array.shape[1]
         natoms = starting_xyz.shape[0]
         nmodes = len(wavenumbers)
@@ -1010,8 +1012,9 @@ class Structure_pool_method:
                 temp = starting_temp
                 factor_array_ = np.zeros(nmodes)
                 chi2 = 1e9  # arbitrarily large start value
-                c = -1  # counter for acceptances
-                for i in range(nsteps):
+                nrestarts, c, i = 0, 0, 0  # initiate counters
+                while i < nsteps:
+                    i += 1  # count steps
                     xyz_, factors_ = random_displace_xyz(xyz)
                     pcd_ = self.pcd_iam(xyz_, atomic_numbers, qvector, reference_iam)
                     chi2_ = self.chi2_value(pcd_, target_pcd)
@@ -1028,6 +1031,15 @@ class Structure_pool_method:
                         if chi2 < convergence_value:
                             # print("reached convergence value!")
                             break
+                        # criteria for restarting
+                        if chi2 > restart_thresh and i > int(nsteps / 2):
+                            print('restarting run (%8.6f > %3.2f)' % (chi2, restart_thresh))
+                            i = 0
+                            nrestarts += 1
+                            if nrestarts == revert_thresh_count:
+                                print('%i restarts! Reverting to starting_xyz' % nrestarts)
+                                xyz = starting_xyz
+                                nrestarts = 0
                     # end iterations loop
                 print("%8.6f" % chi2)
                 # if the run improves on the previous run,
@@ -1041,11 +1053,9 @@ class Structure_pool_method:
                 # end run loop
             # time-step loop updates:
             starting_xyz = final_xyz  # time-step t starts at geometry t-1
-            #final_xyz_array[:, :, t] = final_xyz
+            # final_xyz_array[:, :, t] = final_xyz
             non_h_indices = [0, 1, 2, 3, 4, 5]
-            _, r = self.rmsd_kabsch(
-                final_xyz, target_xyz_array[:, :, t], non_h_indices
-            )
+            _, r = self.rmsd_kabsch(final_xyz, target_xyz_array[:, :, t], non_h_indices)
             final_xyz_array[:, :, t] = np.dot(final_xyz, r.as_matrix())
             final_chi2_array[t] = final_chi2
             final_pcd_array[:, t] = final_pcd
