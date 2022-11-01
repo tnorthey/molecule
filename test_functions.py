@@ -42,6 +42,12 @@ def test_write_xyz():
         assert out.readline() == "3\n", "1st line of out.xyz != 3"
         assert out.readline() == "test\n", "2nd line of out.xyz != 'test'"
 
+def test_read_xyz_traj():
+    natoms, comment, atomlist, xyz_traj = m.read_xyz_traj('xyz/chd_target_traj.xyz', 12)
+    fname = 'out.xyz'
+    m.write_xyz_traj(fname, atomlist, xyz_traj)
+
+test_read_xyz_traj()
 
 def test_sort_array():
     print(atomic_numbers)
@@ -190,4 +196,4 @@ def test_simulated_annealing():
         fname = 'data/min_traj.xyz'
         sp.xyz_traj_to_file(atomlist, xyz_min_traj, fname)
 
-test_simulated_annealing()
+#test_simulated_annealing()

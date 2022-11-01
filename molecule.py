@@ -20,7 +20,7 @@ import numpy as np
 import pandas as pd
 import scipy.io
 from scipy import interpolate
-from scipy import spatial
+from scipy.spatial.transform import Rotation as R
 
 ######
 class Molecule:
@@ -70,6 +70,18 @@ class Molecule:
         )
         return
 
+    def read_xyz_traj(self, fname, ntsteps):
+        """Read a .xyz trajectory file"""
+        with open(fname, "r") as xyzfile:
+            natoms = int(xyzfile.readline())
+            comment = xyzfile.readline()
+        atomarray = np.loadtxt(fname, skiprows=2, max_rows=14, dtype=str, usecols=[0])
+        xyztraj = np.zeros((natoms, 3, ntsteps))
+        for t in range(ntsteps):
+            xyztraj[:, :, t] = np.loadtxt(fname, skiprows=14*t+2*(t+1), max_rows=14, usecols=[1, 2, 3])
+            print(xyztraj[:, :, t])
+        return natoms, comment, atomarray, xyztraj
+
     def write_xyz_traj(self, fname, atoms, xyz_traj):
         """converts xyz_traj array to traj.xyz"""
         natom = len(atoms)
@@ -77,7 +89,7 @@ class Molecule:
         for t in range(xyz_traj.shape[2]):
             comment = "iteration: %i" % t
             xyz = xyz_traj[:, :, t]
-            xyz = xyz.astype("|S10")  # convert to string array (max length 10)
+            xyz = xyz.astype("|S14")  # convert to string array (max length 14)
             tmp = np.array([[str(natom), "", "", ""], [comment, "", "", ""]])
             atoms_xyz = np.append(np.transpose([atoms]), xyz, axis=1)
             atoms_xyz = np.append(tmp, atoms_xyz, axis=0)
@@ -113,7 +125,7 @@ class Molecule:
             for j in range(i + 1, natom):
                 dist = np.linalg.norm(xyz[i, :] - xyz[j, :])
                 dist_array[i, j] = dist
-                dist_array[j, i] = dist  # opposite elements are equal
+                # dist_array[j, i] = dist  # opposite elements are equal
         return dist_array
 
     # Coulomb matrix
@@ -506,15 +518,13 @@ class Xray:
             tmp = self.atomic_factor(atomic_numbers[i], qvector)
             atomic_factor_array[i, :] = tmp
             atomic += tmp**2
+        qpi = qvector / np.pi
         for i in range(natom):
             for j in range(i + 1, natom):  # j > i
-                molecular += (
-                    2
-                    * np.multiply(atomic_factor_array[i, :], atomic_factor_array[j, :])
-                    * np.sinc(qvector * np.linalg.norm(xyz[i, :] - xyz[j, :]) / np.pi)
-                )
-        iam = atomic + molecular
-        return iam
+                molecular += np.multiply(
+                    atomic_factor_array[i, :], atomic_factor_array[j, :]
+                ) * np.sinc(qpi * np.linalg.norm(xyz[i, :] - xyz[j, :]))
+        return atomic + 2 * molecular
 
     def iam_duplicate_search(
         self, starting_xyzfile, nmfile, modes, displacement_factor, niterations
@@ -842,7 +852,7 @@ class Structure_pool_method:
             estimated_rotation, rmsd = spatial.transform.Rotation.align_vectors(
                 xyz[indices, :], xyz_[indices, :]
             )
-            return rmsd
+            return rmsd, estimated_rotation
 
         # start loop
         # non_h_indices = [0, 1, 3, 5, 6, 10, 12]
@@ -921,10 +931,10 @@ class Structure_pool_method:
     def rmsd_kabsch(self, xyz, xyz_, indices):
         """RMSD between xyz and xyz_ for atom indices"""
         # first rotate xyz to have max coincidence with xyz_
-        estimated_rotation, rmsd = spatial.transform.Rotation.align_vectors(
+        estimated_rotation, rmsd = R.align_vectors(
             xyz[indices, :], xyz_[indices, :]
         )
-        return rmsd
+        return rmsd, estimated_rotation
 
     def simulated_annealing(
         self,
@@ -940,12 +950,15 @@ class Structure_pool_method:
         step_size=0.1,
         starting_temp=1.0,
         print_values=False,
+        target_xyz_array=[],
     ):
         """simulated annealing minimisation to experiment,
         displace along each mode according to 'temperature' at each step"""
+        # q vector
         qmax = qvector[-1]
         qlen = len(qvector)
-        run_name_string = "%s_qmax_%2.1f_T0_%2.1f_ds_%2.1f_N_%i_Nruns_%i" % (
+        # create a string to define the run
+        run_name_string = "%s_qmax_%2.1f_T0_%2.1f_ds_%3.2f_N_%i_Nruns_%i" % (
             title,
             qmax,
             starting_temp,
@@ -957,79 +970,101 @@ class Structure_pool_method:
         natoms = starting_xyz.shape[0]
         nmodes = len(wavenumbers)
         modes = list(range(nmodes))
+        # testing: remove wavenumber damping
+        # wavenumbers = np.ones(len(wavenumbers))
         displacement_factors = self.displacements_from_wavenumbers(
             wavenumbers, step_size
         )
-        xyz_path = np.zeros((natoms, 3, nsteps))
-        xyz = starting_xyz  # start at starting xyz
         # reference IAM curve
         reference_xyz_file = "xyz/%s.xyz" % title
         _, _, atomlist, reference_xyz = m.read_xyz(reference_xyz_file)
         atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
         reference_iam = x.iam_calc(atomic_numbers, reference_xyz, qvector)
         # reference IAM up to q = 8, for comparison
-        #qvector8 = np.linspace(0, 8, 79, endpoint=True)
-        #reference_iam8 = x.iam_calc(atomic_numbers, reference_xyz8, qvector8)
+        # qvector8 = np.linspace(0, 8, 79, endpoint=True)
+        # reference_iam8 = x.iam_calc(atomic_numbers, reference_xyz8, qvector8)
 
-        def random_displace_xyz(xyz, a):
+        def random_displace_xyz(xyz):
+            a = step_size
             factors = self.uniform_factors(
                 nmodes, displacement_factors
             )  # random factors
             xyz = nm.nm_displacer(xyz, displacements, modes, a * factors)
-            return xyz
+            return xyz, factors
 
         # start loop
         final_xyz_array = np.zeros((natoms, 3, ntimesteps))
+        final_sum_distances_array = np.zeros(ntimesteps)
         final_chi2_array = np.zeros(ntimesteps)
         final_pcd_array = np.zeros((qlen, ntimesteps))
         final_pcd8_array = np.zeros((qlen, ntimesteps))
+        factor_array = np.zeros(nmodes)
         for t in range(ntimesteps):
-            print('time-step: %i' % t)
+            print("time-step: %i/%i" % (t + 1, ntimesteps))
             final_chi2 = 1e9  # arbitrarily large start value
             # now we start at the final_xyz of the previous step
+            target_pcd = target_pcd_array[:, t]
             for run in range(nruns):
-                print('run: %i/%i' % (run, nruns))
+                print("run: %i/%i" % (run + 1, nruns))
                 xyz = starting_xyz
                 temp = starting_temp
+                factor_array_ = np.zeros(nmodes)
                 chi2 = 1e9  # arbitrarily large start value
                 c = -1  # counter for acceptances
                 for i in range(nsteps):
-                    xyz_ = random_displace_xyz(xyz, temp)
-                    pcd_ = self.pcd_iam(
-                        xyz_, atomic_numbers, qvector, reference_iam
-                    )  # IAM percent difference from reference
-                    chi2_ = self.chi2_value(pcd_, target_pcd_array[:, t])
-                    if (chi2_ < chi2) or (temp > np.random.rand()):  # acceptance criteria
+                    xyz_, factors_ = random_displace_xyz(xyz)
+                    pcd_ = self.pcd_iam(xyz_, atomic_numbers, qvector, reference_iam)
+                    chi2_ = self.chi2_value(pcd_, target_pcd)
+                    temp = starting_temp * (1 - i / nsteps)  # decrease temperature
+                    if (chi2_ < chi2) or (
+                        temp > np.random.rand()
+                    ):  # acceptance criteria
                         c += 1  # count acceptances
-                        temp = starting_temp * (1 - c / nsteps)  # decrease temperature
                         chi2, pcd, xyz = chi2_, pcd_, xyz_  # update values
+                        factor_array_ += factors_  # check how far along each mode
                         if print_values:
                             print("temp = %f" % temp)
                             print("chi2 = %f" % chi2)
                         if chi2 < convergence_value:
-                            print("reached convergence value!")
+                            # print("reached convergence value!")
                             break
                     # end iterations loop
+                print("%8.6f" % chi2)
                 # if the run improves on the previous run,
                 if chi2 < final_chi2:
-                    print("c = %i" % c)
-                    print("final_chi2 < previous")
+                    # print("c = %i" % c)
+                    # print("final_chi2 < previous")
                     final_chi2, final_xyz, final_pcd, final_temp = chi2, xyz, pcd, temp
-                print("chi2 best: %f" % final_chi2)
+                    factor_array = factor_array_
+                    # print('final_temp: %5.4f' % final_temp)
+                    # print("chi2 best: %8.6f" % final_chi2)
                 # end run loop
             # time-step loop updates:
-            starting_xyz = final_xyz
-            final_xyz_array[:, :, t] = final_xyz
+            starting_xyz = final_xyz  # time-step t starts at geometry t-1
+            #final_xyz_array[:, :, t] = final_xyz
+            non_h_indices = [0, 1, 2, 3, 4, 5]
+            _, r = self.rmsd_kabsch(
+                final_xyz, target_xyz_array[:, :, t], non_h_indices
+            )
+            final_xyz_array[:, :, t] = np.dot(final_xyz, r.as_matrix())
             final_chi2_array[t] = final_chi2
             final_pcd_array[:, t] = final_pcd
-            #final_pcd8_array[:, t] = self.pcd_iam(final_xyz, atomic_numbers, qvector8, reference_iam8)
+            final_sum_distances_array[t] = np.sum(
+                m.distances_array(final_xyz[non_h_indices]) ** 1.0
+            )
+            # print('sum(sqrt(distances)) = %4.3f' % final_sum_sqrt_distances_array[t])
+            # final_pcd8_array[:, t] = self.pcd_iam(final_xyz, atomic_numbers, qvector8, reference_iam8)
             # end time loop
         write_final_xyz = True
         if write_final_xyz:
-            m.write_xyz_traj('final_%s.xyz' % run_name_string, atomlist, final_xyz_array)
+            m.write_xyz_traj(
+                "final_%s.xyz" % run_name_string, atomlist, final_xyz_array
+            )
         return (
             run_name_string,
             final_xyz_array,
             final_pcd_array,
             final_chi2_array,
+            factor_array,
+            final_sum_distances_array,
         )

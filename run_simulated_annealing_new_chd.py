@@ -6,9 +6,10 @@ import sys
 qmax            = float( sys.argv[1] )
 qlen            = int(   sys.argv[2] )
 step_size       = float( sys.argv[3] )
-nsteps          = int(   sys.argv[4] )
-nruns           = int(   sys.argv[5] )
-ntimesteps      = int(   sys.argv[6] )
+starting_temp   = float( sys.argv[4] )
+nsteps          = int(   sys.argv[5] )
+nruns           = int(   sys.argv[6] )
+ntimesteps      = int(   sys.argv[7] )
 
 m = molecule.Molecule()
 nm = molecule.Normal_modes()
@@ -28,14 +29,23 @@ displacements = nm.read_nm_displacements(nmfile, natom)
 
 # "experiment" target percent diff
 target_pcd_array = np.zeros((qlen, ntimesteps))
+target_xyz_array = np.zeros((natom, 3, ntimesteps))
+target_sum_sqrt_distances = np.zeros(ntimesteps)
+### read_xyz_traj doesn't exist! Write it!
+#_, _, _, xyz_traj = m.read_xyz_traj("xyz/chd_target_traj.xyz", ntsteps)
+####
 for t in range(ntimesteps):
-    _, _, _, xyz_displaced = m.read_xyz("xyz/chd_target_t%i.xyz" % t)
-    displaced_iam = x.iam_calc(atomic_numbers, xyz_displaced, qvector)
-    target_pcd_array[:, t] = 100 * (displaced_iam / starting_iam - 1)
+    _, _, _, xyz_target = m.read_xyz("xyz/chd_target_t%s.xyz" % str(t).zfill(2))
+    target_xyz_array[:, :, t] = xyz_target
+    non_h_indices = [0, 1, 2, 3, 4, 5]
+    distances = m.distances_array(xyz_target[non_h_indices])
+    target_sum_sqrt_distances[t] = np.sum(distances**1.0)
+    #target_iam = x.iam_calc(atomic_numbers, xyz_traj[:, : , t], qvector)
+    target_iam = x.iam_calc(atomic_numbers, xyz_target, qvector)
+    target_pcd_array[:, t] = 100 * (target_iam / starting_iam - 1)
 
 # run sim annealing
-convergence_value = 1e-6
-starting_temp = 0.5
+convergence_value = 1e-9
 print_values = False
 
 # run sim annealing function
@@ -44,6 +54,8 @@ print_values = False
     final_xyz_traj,
     final_pcd_traj,
     final_chi2_traj,
+    factor_distribution,
+    final_sum_sqrt_distances_traj,
 ) = sp.simulated_annealing(
     title,
     starting_xyz,
@@ -57,7 +69,15 @@ print_values = False
     step_size,
     starting_temp,
     print_values,
+    target_xyz_array
 )
+
+print('Row 1: target sum sqrt distances:')
+print('Row 2: found')
+print('Row 2: |target - found|')
+print(target_sum_sqrt_distances)
+print(final_sum_sqrt_distances_traj)
+print(np.abs(target_sum_sqrt_distances - final_sum_sqrt_distances_traj))
 
 # save to file
 data_file = "data_%s.npz" % run_name_string
@@ -72,4 +92,5 @@ np.savez(
     final_pcd_traj=final_pcd_traj,
     final_xyz_traj=final_xyz_traj,
     final_chi2_traj=final_chi2_traj,
+    factor_distribution=factor_distribution,
 )
