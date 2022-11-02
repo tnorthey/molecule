@@ -6,10 +6,9 @@ import sys
 qmax            = float( sys.argv[1] )
 qlen            = int(   sys.argv[2] )
 step_size       = float( sys.argv[3] )
-starting_temp   = float( sys.argv[4] )
-nsteps          = int(   sys.argv[5] )
-nruns           = int(   sys.argv[6] )
-ntsteps      = int(   sys.argv[7] )
+nsteps          = int(   sys.argv[4] )
+nruns           = int(   sys.argv[5] )
+ntsteps         = int(   sys.argv[6] )
 
 m = molecule.Molecule()
 nm = molecule.Normal_modes()
@@ -40,7 +39,8 @@ for t in range(ntsteps):
     target_pcd_array[:, t] = 100 * (target_iam / starting_iam - 1)
 
 # run sim annealing
-convergence_value = 1e-9
+convergence_value = 1e-6
+max_restarts = 50
 print_values = False
 
 # run sim annealing function
@@ -51,7 +51,7 @@ print_values = False
     final_chi2_traj,
     factor_distribution,
     final_sum_sqrt_distances_traj,
-) = sp.simulated_annealing(
+) = sp.stochastic_descent(
     title,
     starting_xyz,
     displacements,
@@ -62,9 +62,9 @@ print_values = False
     nruns,
     convergence_value,
     step_size,
-    starting_temp,
     print_values,
-    target_xyz_array
+    target_xyz_array,
+    max_restarts,
 )
 
 print('Row 1: target sum sqrt distances:')
@@ -81,7 +81,6 @@ np.savez(
     step_size=step_size,
     nruns=nruns,
     nsteps=nsteps,
-    starting_temp=starting_temp,
     qvector=qvector,
     target_pcd_array=target_pcd_array,
     final_pcd_traj=final_pcd_traj,

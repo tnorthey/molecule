@@ -17,6 +17,7 @@ x Z-matrix sampling
 ######
 import os
 import numpy as np
+from numpy import random
 import pandas as pd
 import scipy.io
 from scipy import interpolate
@@ -315,11 +316,11 @@ class Normal_modes:
                 for j in range(nmodes):
                     a = displacement_factors[j]
                     factors[j] = (
-                        np.random.random_sample() * 2 * a - a
+                        random.random_sample() * 2 * a - a
                     )  # random factors in range [-a, a]
             elif normal_dist:
                 mu, sigma = 0, displacement_factors  # mean and standard deviation
-                factors = np.random.normal(
+                factors = random.normal(
                     mu, sigma, nmodes
                 )  # random factors in normal distribution with standard deviation = a
             displaced_xyz = self.nm_displacer(xyz, displacements, modes, factors)
@@ -550,11 +551,11 @@ class Xray:
         c = 0
         for i in range(niterations):
             factors = (
-                np.random.rand(nmodes) * 2 * a - a
+                random.rand(nmodes) * 2 * a - a
             )  # random factors in range [-a, a]
             xyz_1 = nm.nm_displacer(xyz, displacements, modes, factors)
             factors = (
-                np.random.rand(nmodes) * 2 * a - a
+                random.rand(nmodes) * 2 * a - a
             )  # random factors in range [-a, a]
             xyz_2 = nm.nm_displacer(xyz, displacements, modes, factors)
             dist_array_1 = m.distances_array(xyz_1)
@@ -741,14 +742,17 @@ class Structure_pool_method:
         for j in range(nmodes):
             # random factors in range [-a, a]
             a = displacement_factors[j]
-            factors[j] = 2 * a * np.random.random_sample() - a
+            factors[j] = 2 * a * random.random_sample() - a
         return factors
 
     def displacements_from_wavenumbers(self, wavenumbers, step_size):
         nmodes = len(wavenumbers)
         displacement_factors = np.zeros(nmodes)
         for i in range(nmodes):  # initial factors are inv. prop. to wavenumber
-            displacement_factors[i] = wavenumbers[0] / wavenumbers[i]
+            if wavenumbers[i] > 0:
+                displacement_factors[i] = wavenumbers[0] / wavenumbers[i]
+            else:
+                displacement_factors[i] = 0.0
         displacement_factors *= step_size  # adjust max size of displacement step
         return displacement_factors
 
@@ -786,132 +790,6 @@ class Structure_pool_method:
             pcd_array[:, i] = 100 * (iam / reference_iam - 1)
         return pcd_array
 
-    def simulated_annealing_old(
-        self,
-        starting_xyz,
-        displacements,
-        wavenumbers,
-        target_pcd,
-        qvector,
-        nsteps=10000,
-        nruns=10,
-        convergence_value=0.001,
-        step_size=0.1,
-        starting_temp=1.0,
-        save_xyz_path=False,
-        print_values=False,
-    ):
-        """simulated annealing minimisation to experiment,
-        displace along each mode according to 'temperature' at each step"""
-        natom = starting_xyz.shape[0]
-        nmodes = len(wavenumbers)
-        modes = list(range(nmodes))
-        displacement_factors = self.displacements_from_wavenumbers(
-            wavenumbers, step_size
-        )
-        xyz_path = np.zeros((natom, 3, nsteps))
-        xyz = starting_xyz  # start at starting xyz
-        # reference IAM curve
-        reference_xyz_file = "xyz/chd.xyz"
-        _, _, atomlist, reference_xyz = m.read_xyz(reference_xyz_file)
-        atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
-        reference_iam = x.iam_calc(atomic_numbers, xyz, qvector)
-
-        # if using displaced theoretical structure (for RMSD)
-        testing_rmsd_bool = True
-        if testing_rmsd_bool:
-            xyz_file = "xyz/chd_target.xyz"
-            _, _, _, displaced_xyz = m.read_xyz(xyz_file)
-
-        def pcd_iam(xyz):
-            iam = x.iam_calc(atomic_numbers, xyz, qvector)
-            return 100 * (iam / reference_iam - 1)
-
-        def chi2_value(x, y):
-            chi2 = np.sum((x - y) ** 2)
-            chi2 /= len(x)  # normalise by len(q)
-            return chi2
-
-        def random_displace_xyz(xyz, a):
-            factors = self.uniform_factors(
-                nmodes, displacement_factors
-            )  # random factors
-            xyz = nm.nm_displacer(xyz, displacements, modes, a * factors)
-            return xyz
-
-        def rmsd_atoms(xyz, xyz_, indices):
-            """RMSD between xyz and xyz_ for atom indices"""
-            natoms = len(indices)
-            rmsd = 0.0
-            for i in range(natoms):
-                rmsd += np.sum((xyz[indices[i], :] - xyz_[indices[i], :]) ** 2)
-            rmsd = (rmsd / natom) ** 0.5
-            return rmsd
-
-        def rmsd_kabsch(xyz, xyz_, indices):
-            """RMSD between xyz and xyz_ for atom indices"""
-            # first rotate xyz to have max coincidence with xyz_
-            estimated_rotation, rmsd = spatial.transform.Rotation.align_vectors(
-                xyz[indices, :], xyz_[indices, :]
-            )
-            return rmsd, estimated_rotation
-
-        # start loop
-        # non_h_indices = [0, 1, 3, 5, 6, 10, 12]
-        non_h_indices = [0, 1, 2, 3, 4, 5]
-        print(atomlist[non_h_indices])
-        final_chi2 = 1e9  # arbitrarily large start value
-        for j in range(nruns):
-            print(j)
-            xyz = starting_xyz
-            temp = starting_temp
-            chi2 = 1e9  # arbitrarily large start value
-            c = -1  # counter for acceptances
-            chi2_path, rmsd_path = (
-                np.zeros(nsteps),
-                np.zeros(nsteps),
-            )
-            for i in range(nsteps):
-                xyz_ = random_displace_xyz(xyz, temp)
-                pcd_ = pcd_iam(xyz_)  # IAM percent difference from reference
-                chi2_ = chi2_value(pcd_, target_pcd)
-                if (chi2_ < chi2) or (temp > np.random.rand()):  # acceptance criteria
-                    c += 1  # count acceptances
-                    temp = starting_temp * (1 - c / nsteps)  # decrease temperature
-                    # a = starting_temp * np.exp(-cooling_rate * c / nsteps)  # decrease temperature
-                    chi2, pcd, xyz = chi2_, pcd_, xyz_  # update values
-                    chi2_path[c] = chi2
-                    rmsd_path[c] = rmsd_kabsch(xyz, displaced_xyz, non_h_indices)
-                    if save_xyz_path:
-                        xyz_path[:, :, c] = xyz  # store minimisation pathway
-                    if print_values:
-                        print("temp = %f" % temp)
-                        print("chi2 = %f" % chi2)
-                    if chi2 < convergence_value:
-                        print("reached convergence value!")
-                        break
-                final_chi2_, final_xyz_, final_pcd_, final_temp_ = chi2, xyz, pcd, temp
-            if final_chi2_ < final_chi2:
-                print("c = %i" % c)
-                print("final_chi2 < previous")
-                final_chi2, final_xyz, final_pcd, final_temp = chi2, xyz, pcd, temp
-                best_chi2_path, best_rmsd_path, best_xyz_path = (
-                    chi2_path[: c + 1],
-                    rmsd_path[: c + 1],
-                    xyz_path[:, :, : c + 1],
-                )
-                print(best_chi2_path)
-            print("chi2 best: %f" % final_chi2)
-        return (
-            best_chi2_path,
-            best_rmsd_path,
-            best_xyz_path,
-            final_chi2,
-            final_temp,
-            final_pcd,
-            final_xyz,
-        )
-
     def pcd_iam(self, xyz, atomic_numbers, qvector, reference_iam):
         iam = x.iam_calc(atomic_numbers, xyz, qvector)
         return 100 * (iam / reference_iam - 1)
@@ -946,11 +824,13 @@ class Structure_pool_method:
         qvector,
         nsteps=10000,
         nruns=10,
-        convergence_value=0.0001,
+        cutoff_value=1e-6,
         step_size=0.1,
-        starting_temp=1.0,
+        starting_temp=0.5,
         print_values=False,
         target_xyz_array=[],
+        max_restarts=10,
+        max_reverts=10,
     ):
         """simulated annealing minimisation to experiment,
         displace along each mode according to 'temperature' at each step"""
@@ -968,13 +848,16 @@ class Structure_pool_method:
             nruns,
             ntimesteps,
         )
-        restart_thresh = 1e-5  # if chi2 > this the loop restarts
-        revert_thresh_count = 10  # resets to starting_xyz after this many resets
         natoms = starting_xyz.shape[0]
         nmodes = len(wavenumbers)
         modes = list(range(nmodes))
         # testing: remove wavenumber damping
-        # wavenumbers = np.ones(len(wavenumbers))
+        w_damping = True
+        h_mode_clamping = True
+        if not w_damping:
+            wavenumbers = np.ones(len(wavenumbers))
+        if h_mode_clamping:
+            wavenumbers[29:35] = 0
         displacement_factors = self.displacements_from_wavenumbers(
             wavenumbers, step_size
         )
@@ -987,11 +870,14 @@ class Structure_pool_method:
         # qvector8 = np.linspace(0, 8, 79, endpoint=True)
         # reference_iam8 = x.iam_calc(atomic_numbers, reference_xyz8, qvector8)
 
-        def random_displace_xyz(xyz, step_size):
+        def displace_xyz(xyz, step_size, uniform_random=True):
             a = step_size
-            factors = self.uniform_factors(
-                nmodes, displacement_factors
-            )  # random factors
+            if uniform_random:
+                factors = self.uniform_factors(
+                    nmodes, displacement_factors
+                )  # random factors
+            else:
+                factors = np.random.choice([-1,1],size=nmodes)
             xyz = nm.nm_displacer(xyz, displacements, modes, a * factors)
             return xyz, factors
 
@@ -1007,63 +893,240 @@ class Structure_pool_method:
             final_chi2 = 1e9  # arbitrarily large start value
             # now we start at the final_xyz of the previous step
             target_pcd = target_pcd_array[:, t]
-            for run in range(nruns):
-                print("run: %i/%i" % (run + 1, nruns))
+            run = 0
+            while run < nruns:
+                run += 1
+                print("run: %i/%i" % (run, nruns))
                 xyz = starting_xyz
                 temp = starting_temp
                 factor_array_ = np.zeros(nmodes)
-                chi2 = 1e9  # arbitrarily large start value
-                chi2_best = 1e9  # arbitrarily large start value
+                chi2, chi2_best = 1e9, 1e9  # arbitrarily large start value
                 nrestarts, c, i = 0, 0, 0  # initiate counters
-                restart_thresh_ = restart_thresh
-                nsteps_ = nsteps
+                nreverts = 0
                 starting_temp_ = starting_temp
                 step_size_ = step_size
+                nsteps_ = nsteps
                 while i < nsteps_:
                     i += 1  # count steps
-                    xyz_, factors_ = random_displace_xyz(xyz, step_size_)
+                    xyz_, factors_ = displace_xyz(xyz, step_size_)
                     pcd_ = self.pcd_iam(xyz_, atomic_numbers, qvector, reference_iam)
                     chi2_ = self.chi2_value(pcd_, target_pcd)
                     temp = starting_temp_ * (1 - i / nsteps_)  # decrease temperature
-                    if (chi2_ < chi2) or (
-                        temp > np.random.rand()
+                    if (
+                        chi2_ < chi2 or temp > random.rand()
                     ):  # acceptance criteria
                         c += 1  # count acceptances
                         chi2, pcd, xyz = chi2_, pcd_, xyz_  # update values
                         factor_array_ += factors_  # check how far along each mode
                         if chi2_ < chi2_best:
-                            chi2_best, pcd_best, xyz_best = chi2_, pcd_, xyz_  # update values
+                            # update values
+                            chi2_best, pcd_best, xyz_best = (
+                                chi2_,
+                                pcd_,
+                                xyz_,
+                            )
                         if print_values:
                             print("temp = %f" % temp)
                             print("chi2 = %f" % chi2)
-                        # if chi2 < convergence_value:
-                        if chi2 < restart_thresh_:
+                        if chi2 < cutoff_value:
                             print("reached convergence value!")
                             nreverts = 0
                             break
                         # criteria for restarting
-                        if chi2 > restart_thresh_ and i > int(nsteps_ / 2):
+                        if chi2 >= cutoff_value and i > int(nsteps_ / 2):
+                            nrestarts += 1
                             print(
-                                "restarting run (%8.7f > %8.7f)"
-                                % (chi2, restart_thresh_)
+                                "restarting (%i) run (%8.7f > %8.7f)" % (nrestarts, chi2, cutoff_value)
                             )
                             i, c = 0, 0
-                            step_size_ *= 0.9
-                            print("Step-size decreased: %8.7f" % step_size_)
-                            nrestarts += 1
-                            if nrestarts == revert_thresh_count:
+                            starting_temp_ *= 0.5
+                            print("T decreased: %8.7f" % starting_temp_)
+                            if nrestarts == max_restarts:
+                                step_size_ *= 0.75
+                                nsteps_ = int(nsteps_ * 0.75)
+                                print("Step-size decreased: %8.7f" % step_size_)
+                                print("Steps decreased: %i" % nsteps_)
                                 nrestarts = 0
+                                nreverts += 1
+                                starting_temp_ = starting_temp
+                            if nreverts > max_reverts:
+                                nreverts = 0
+                                print("reached max_restarts. Break.")
                                 break
+                    elif i == nsteps_ and chi2 >= cutoff_value:
+                        if c == 0:
+                            print('no downhill move.')
+                            step_size_ *= 0.75
+                            nsteps_ = int(nsteps_ * 0.75)
+                            print("Step-size decreased: %8.7f" % step_size_)
+                            print("Steps decreased: %i" % nsteps_)
+                        nrestarts += 1
+                        print(
+                            "i = N restart (%i) run (%8.7f > %8.7f)" % (nrestarts, chi2, cutoff_value)
+                        )
+                        i, c = 0, 0
+                        starting_temp_ *= 0.5
+                        print("T decreased: %8.7f" % starting_temp_)
+                        if nrestarts == max_restarts:
+                            step_size_ *= 0.75
+                            nsteps_ = int(nsteps_ * 0.75)
+                            print("Step-size decreased: %8.7f" % step_size_)
+                            print("Steps decreased: %i" % nsteps_)
+                            nrestarts = 0
+                            nreverts += 1
+                            starting_temp_ = starting_temp
+                        if nreverts > max_reverts:
+                            nreverts = 0
+                            print("reached max_restarts. Break.")
+                            break
                     # end iterations loop
                 # if the run improves on the previous run,
                 if chi2 < final_chi2:
-                    # print("c = %i" % c)
-                    # print("final_chi2 < previous")
                     final_chi2, final_xyz, final_pcd = chi2_best, xyz_best, pcd_best
                     final_temp = temp
                     factor_array = factor_array_
-                    # print('final_temp: %5.4f' % final_temp)
-                    print("chi2 best: %8.6f" % final_chi2)
+                    print("chi2 best: %8.7f" % final_chi2)
+                # end run loop
+            # time-step loop updates:
+            starting_xyz = final_xyz  # time-step t starts at geometry t-1
+            # final_xyz_array[:, :, t] = final_xyz
+            non_h_indices = [0, 1, 2, 3, 4, 5]
+            _, r = self.rmsd_kabsch(final_xyz, target_xyz_array[:, :, t], non_h_indices)
+            final_xyz_array[:, :, t] = np.dot(final_xyz, r.as_matrix())
+            final_chi2_array[t] = final_chi2
+            final_pcd_array[:, t] = final_pcd
+            final_sum_distances_array[t] = np.sum(
+                m.distances_array(final_xyz[non_h_indices]) ** 1.0
+            )
+            # print('sum(sqrt(distances)) = %4.3f' % final_sum_sqrt_distances_array[t])
+            # final_pcd8_array[:, t] = self.pcd_iam(final_xyz, atomic_numbers, qvector8, reference_iam8)
+            # end time loop
+        write_final_xyz = True
+        if write_final_xyz:
+            m.write_xyz_traj(
+                "final_%s.xyz" % run_name_string, atomlist, final_xyz_array
+            )
+        return (
+            run_name_string,
+            final_xyz_array,
+            final_pcd_array,
+            final_chi2_array,
+            factor_array,
+            final_sum_distances_array,
+        )
+
+
+    def stochastic_descent(
+        self,
+        title,
+        starting_xyz,
+        displacements,
+        wavenumbers,
+        target_pcd_array,
+        qvector,
+        nsteps=10000,
+        nruns=10,
+        cutoff_value=1e-6,
+        step_size=0.1,
+        print_values=False,
+        target_xyz_array=[],
+        max_restarts=10,
+    ):
+        """simulated annealing minimisation to experiment,
+        displace along each mode according to 'temperature' at each step"""
+        # q vector
+        qmax = qvector[-1]
+        qlen = len(qvector)
+        ntimesteps = target_pcd_array.shape[1]
+        # create a string to define the run
+        run_name_string = "%s_qmax_%2.1f_ds_%3.2f_N_%i_Nruns_%i_nt_%i" % (
+            title,
+            qmax,
+            step_size,
+            nsteps,
+            nruns,
+            ntimesteps,
+        )
+        natoms = starting_xyz.shape[0]
+        nmodes = len(wavenumbers)
+        modes = list(range(nmodes))
+        # testing: remove wavenumber damping
+        w_damping = True
+        h_mode_clamping = True
+        if not w_damping:
+            wavenumbers = np.ones(len(wavenumbers))
+        if h_mode_clamping:
+            wavenumbers[29:35] = 0
+        displacement_factors = self.displacements_from_wavenumbers(
+            wavenumbers, step_size
+        )
+        # reference IAM curve
+        reference_xyz_file = "xyz/%s.xyz" % title
+        _, _, atomlist, reference_xyz = m.read_xyz(reference_xyz_file)
+        atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
+        reference_iam = x.iam_calc(atomic_numbers, reference_xyz, qvector)
+        # reference IAM up to q = 8, for comparison
+        # qvector8 = np.linspace(0, 8, 79, endpoint=True)
+        # reference_iam8 = x.iam_calc(atomic_numbers, reference_xyz8, qvector8)
+
+        def displace_xyz(xyz, step_size, uniform_random=True):
+            a = step_size
+            if uniform_random:
+                factors = self.uniform_factors(
+                    nmodes, displacement_factors
+                )  # random factors
+            else:
+                factors = np.random.choice([-1,1],size=nmodes)
+            xyz = nm.nm_displacer(xyz, displacements, modes, a * factors)
+            return xyz, factors
+
+        # start loop
+        final_xyz_array = np.zeros((natoms, 3, ntimesteps))
+        final_sum_distances_array = np.zeros(ntimesteps)
+        final_chi2_array = np.zeros(ntimesteps)
+        final_pcd_array = np.zeros((qlen, ntimesteps))
+        factor_array = np.zeros(nmodes)
+        for t in range(ntimesteps):
+            print("time-step: %i/%i" % (t + 1, ntimesteps))
+            final_chi2 = 1e9  # arbitrarily large start value
+            # now we start at the final_xyz of the previous step
+            target_pcd = target_pcd_array[:, t]
+            chi2_end = 0
+            run = 0
+            while run < nruns:
+                run += 1
+                print("run: %i/%i" % (run, nruns))
+                xyz = starting_xyz
+                factor_array_ = np.zeros(nmodes)
+                chi2, chi2_best = 1e9, 1e9  # arbitrarily large start value
+                i, c = 0, 0  # initiate counters
+                step_size_ = step_size
+                nsteps_ = nsteps
+                while i < nsteps_:
+                    i += 1  # count steps
+                    xyz_, factors_ = displace_xyz(xyz, step_size_)
+                    pcd_ = self.pcd_iam(xyz_, atomic_numbers, qvector, reference_iam)
+                    chi2_ = self.chi2_value(pcd_, target_pcd)
+                    # acceptance criteria
+                    if chi2_ < chi2:
+                        c += 1  # count acceptances
+                        chi2, pcd, xyz = chi2_, pcd_, xyz_  # update values
+                        factor_array_ += factors_  # record total motion along each mode
+                        if chi2_ < chi2_best:
+                            chi2_best, pcd_best, xyz_best = (
+                                chi2_,
+                                pcd_,
+                                xyz_,
+                            )
+                        if chi2_ < cutoff_value:
+                            print("reached convergence value! break")
+                            break
+                    # end iterations loop
+                # if the run improves on the previous run,
+                if chi2 < final_chi2:
+                    final_chi2, final_xyz, final_pcd = chi2_best, xyz_best, pcd_best
+                    factor_array = factor_array_
+                    print("chi2 final: %8.7f" % final_chi2)
                 # end run loop
             # time-step loop updates:
             starting_xyz = final_xyz  # time-step t starts at geometry t-1

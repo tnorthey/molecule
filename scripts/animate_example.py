@@ -7,9 +7,10 @@ nm = molecule.Normal_modes()
 
 factor = float(sys.argv[1])
 
-xyz_start_file = "../xyz/nmm.xyz"
-nmfile = "../nm/nmm_normalmodes.txt"
-natoms = 18
+title = 'chd'
+xyz_start_file = "../xyz/%s.xyz" % title
+nmfile = "../nm/%s_normalmodes.txt" % title
+natoms = 14
 modes = [
     0,
     1,
@@ -47,18 +48,19 @@ modes = [
     33,
     34,
     35,
-    36,
-    37,
-    38,
-    39,
-    40,
-    41,
-    42,
-    43,
-    44,
-    45,
-    46,
-    47,
 ]
+#    36,
+#    37,
+#    38,
+#    39,
+#    40,
+#    41,
+#    42,
+#    43,
+#    44,
+#    45,
+#    46,
+#    47,
+#]
 for i in range(len(modes)):
     nm.animate_mode(modes[i], xyz_start_file, nmfile, natoms, factor)
