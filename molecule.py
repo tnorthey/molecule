@@ -550,13 +550,9 @@ class Xray:
         thresh_chi_iams = 0.01
         c = 0
         for i in range(niterations):
-            factors = (
-                random.rand(nmodes) * 2 * a - a
-            )  # random factors in range [-a, a]
+            factors = random.rand(nmodes) * 2 * a - a  # random factors in range [-a, a]
             xyz_1 = nm.nm_displacer(xyz, displacements, modes, factors)
-            factors = (
-                random.rand(nmodes) * 2 * a - a
-            )  # random factors in range [-a, a]
+            factors = random.rand(nmodes) * 2 * a - a  # random factors in range [-a, a]
             xyz_2 = nm.nm_displacer(xyz, displacements, modes, factors)
             dist_array_1 = m.distances_array(xyz_1)
             dist_array_2 = m.distances_array(xyz_2)
@@ -833,7 +829,7 @@ class Structure_pool_method:
         max_reverts=10,
     ):
         """simulated annealing minimisation to experiment,
-        displace along each mode according to 'temperature' at each step"""
+        displace along each mode at each step"""
         # q vector
         qmax = qvector[-1]
         qlen = len(qvector)
@@ -877,7 +873,7 @@ class Structure_pool_method:
                     nmodes, displacement_factors
                 )  # random factors
             else:
-                factors = np.random.choice([-1,1],size=nmodes)
+                factors = np.random.choice([-1, 1], size=nmodes)
             xyz = nm.nm_displacer(xyz, displacements, modes, a * factors)
             return xyz, factors
 
@@ -912,9 +908,7 @@ class Structure_pool_method:
                     pcd_ = self.pcd_iam(xyz_, atomic_numbers, qvector, reference_iam)
                     chi2_ = self.chi2_value(pcd_, target_pcd)
                     temp = starting_temp_ * (1 - i / nsteps_)  # decrease temperature
-                    if (
-                        chi2_ < chi2 or temp > random.rand()
-                    ):  # acceptance criteria
+                    if chi2_ < chi2 or temp > random.rand():  # acceptance criteria
                         c += 1  # count acceptances
                         chi2, pcd, xyz = chi2_, pcd_, xyz_  # update values
                         factor_array_ += factors_  # check how far along each mode
@@ -936,7 +930,8 @@ class Structure_pool_method:
                         if chi2 >= cutoff_value and i > int(nsteps_ / 2):
                             nrestarts += 1
                             print(
-                                "restarting (%i) run (%8.7f > %8.7f)" % (nrestarts, chi2, cutoff_value)
+                                "restarting (%i) run (%8.7f > %8.7f)"
+                                % (nrestarts, chi2, cutoff_value)
                             )
                             i, c = 0, 0
                             starting_temp_ *= 0.5
@@ -955,14 +950,15 @@ class Structure_pool_method:
                                 break
                     elif i == nsteps_ and chi2 >= cutoff_value:
                         if c == 0:
-                            print('no downhill move.')
+                            print("no downhill move.")
                             step_size_ *= 0.75
                             nsteps_ = int(nsteps_ * 0.75)
                             print("Step-size decreased: %8.7f" % step_size_)
                             print("Steps decreased: %i" % nsteps_)
                         nrestarts += 1
                         print(
-                            "i = N restart (%i) run (%8.7f > %8.7f)" % (nrestarts, chi2, cutoff_value)
+                            "i = N restart (%i) run (%8.7f > %8.7f)"
+                            % (nrestarts, chi2, cutoff_value)
                         )
                         i, c = 0, 0
                         starting_temp_ *= 0.5
@@ -1015,6 +1011,155 @@ class Structure_pool_method:
             final_sum_distances_array,
         )
 
+    def simulated_annealing_v2(
+        self,
+        title,
+        starting_xyz,
+        displacements,
+        wavenumbers,
+        target_pcd_array,
+        qvector,
+        nsteps=10000,
+        max_restarts=10,
+        cutoff_value=1e-6,
+        step_size=0.1,
+        print_values=False,
+        target_xyz_array=[],
+        max_reverts=2,
+    ):
+        """simulated annealing minimisation to experiment,
+        displace along each mode at each step"""
+        # q vector
+        qmax = qvector[-1]
+        qlen = len(qvector)
+        ntimesteps = target_pcd_array.shape[1]
+        # create a string to define the run
+        run_name_string = "%s_qmax_%2.1f_ds_%3.2f_N_%i_nt_%i" % (
+            title,
+            qmax,
+            step_size,
+            nsteps,
+            ntimesteps,
+        )
+        natoms = starting_xyz.shape[0]
+        nmodes = len(wavenumbers)
+        modes = list(range(nmodes))
+        # testing: remove wavenumber damping
+        w_damping = True
+        h_mode_clamping = True
+        if not w_damping:
+            wavenumbers = np.ones(len(wavenumbers))
+        if h_mode_clamping:
+            wavenumbers[29:35] = 0
+        displacement_factors = self.displacements_from_wavenumbers(
+            wavenumbers, step_size
+        )
+        # reference IAM curve
+        reference_xyz_file = "xyz/%s.xyz" % title
+        _, _, atomlist, reference_xyz = m.read_xyz(reference_xyz_file)
+        atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
+        reference_iam = x.iam_calc(atomic_numbers, reference_xyz, qvector)
+
+        def displace_xyz(xyz, step_size):
+            factors = self.uniform_factors(
+                nmodes, displacement_factors
+            )  # random factors
+            xyz = nm.nm_displacer(xyz, displacements, modes, step_size * factors)
+            return xyz, factors
+
+        # start loop
+        final_xyz_array = np.zeros((natoms, 3, ntimesteps))
+        final_sum_distances_array = np.zeros(ntimesteps)
+        final_chi2_array = np.zeros(ntimesteps)
+        final_pcd_array = np.zeros((qlen, ntimesteps))
+        factor_array = np.zeros(nmodes)
+        for t in range(ntimesteps):
+            print("time-step: %i/%i" % (t + 1, ntimesteps))
+            final_chi2 = 1e9  # arbitrarily large start value
+            target_pcd = target_pcd_array[:, t]
+            run = 0
+            xyz = starting_xyz
+            factor_array_ = np.zeros(nmodes)
+            chi2, chi2_best = 1e9, 1e9  # arbitrarily large start value
+            nrestarts, c, i = 0, 0, 0  # initiate counters
+            nreverts = 0
+            starting_temp_ = 0.0
+            step_size_ = step_size
+            nsteps_ = nsteps
+            while i < nsteps_:
+                i += 1  # count steps
+                print(i)
+                xyz_, factors_ = displace_xyz(xyz, step_size_)
+                pcd_ = self.pcd_iam(xyz_, atomic_numbers, qvector, reference_iam)
+                chi2_ = self.chi2_value(pcd_, target_pcd)
+                temp = starting_temp_ * (1 - i / nsteps_)  # decrease temperature
+                if chi2_ < chi2 or temp > random.rand():
+                    # accept the step
+                    c += 1  # count acceptances
+                    chi2, pcd, xyz = chi2_, pcd_, xyz_  # update values
+                    factor_array_ += factors_  # check how far along each mode
+                    if chi2_ < chi2_best:
+                        # store lowest chi2 values
+                        chi2_best, pcd_best, xyz_best = chi2_, pcd_, xyz_
+                    if print_values:
+                        print("temp = %f" % temp)
+                        print("chi2 = %f" % chi2)
+                    if chi2_ < cutoff_value:
+                        print("reached convergence value!")
+                        break
+                # criteria for restarting
+                if i == nsteps_:
+                    if nreverts > max_reverts:
+                        nreverts = 0
+                        print("Reached max_reverts. End of t-step...")
+                        break
+                    if nrestarts == max_restarts:
+                        nrestarts = 0
+                        nreverts += 1
+                        starting_temp_ = 0.5
+                        print('Max_restarts reached. Trying again with T0 = %3.2f' % starting_temp_)
+                    i, c = 0, 0
+                    nrestarts += 1
+                    xyz = starting_xyz  # back to starting point
+                    print(
+                        "restarting (%i) run (%8.7f > %8.7f)"
+                        % (nrestarts, chi2, cutoff_value)
+                    )
+                # end iterations loop
+            # if the run improves on the previous run,
+            if chi2 < final_chi2:
+                final_chi2, final_xyz, final_pcd = chi2_best, xyz_best, pcd_best
+                final_temp = temp
+                factor_array = factor_array_
+                print("chi2 best: %8.7f" % final_chi2)
+            # end run loop
+            # time-step loop updates:
+            starting_xyz = final_xyz  # time-step t starts at geometry t-1
+            # final_xyz_array[:, :, t] = final_xyz
+            non_h_indices = [0, 1, 2, 3, 4, 5]
+            _, r = self.rmsd_kabsch(final_xyz, target_xyz_array[:, :, t], non_h_indices)
+            final_xyz_array[:, :, t] = np.dot(final_xyz, r.as_matrix())
+            final_chi2_array[t] = final_chi2
+            final_pcd_array[:, t] = final_pcd
+            final_sum_distances_array[t] = np.sum(
+                m.distances_array(final_xyz[non_h_indices]) ** 1.0
+            )
+            # print('sum(sqrt(distances)) = %4.3f' % final_sum_sqrt_distances_array[t])
+            # final_pcd8_array[:, t] = self.pcd_iam(final_xyz, atomic_numbers, qvector8, reference_iam8)
+            # end time loop
+        write_final_xyz = True
+        if write_final_xyz:
+            m.write_xyz_traj(
+                "final_%s.xyz" % run_name_string, atomlist, final_xyz_array
+            )
+        return (
+            run_name_string,
+            final_xyz_array,
+            final_pcd_array,
+            final_chi2_array,
+            factor_array,
+            final_sum_distances_array,
+        )
 
     def stochastic_descent(
         self,
@@ -1076,7 +1221,7 @@ class Structure_pool_method:
                     nmodes, displacement_factors
                 )  # random factors
             else:
-                factors = np.random.choice([-1,1],size=nmodes)
+                factors = np.random.choice([-1, 1], size=nmodes)
             xyz = nm.nm_displacer(xyz, displacements, modes, a * factors)
             return xyz, factors
 

@@ -6,10 +6,8 @@ import sys
 qmax            = float( sys.argv[1] )
 qlen            = int(   sys.argv[2] )
 step_size       = float( sys.argv[3] )
-starting_temp   = float( sys.argv[4] )
-nsteps          = int(   sys.argv[5] )
-nruns           = int(   sys.argv[6] )
-ntsteps      = int(   sys.argv[7] )
+nsteps          = int(   sys.argv[4] )
+ntsteps         = int(   sys.argv[5] )
 
 m = molecule.Molecule()
 nm = molecule.Normal_modes()
@@ -41,7 +39,7 @@ for t in range(ntsteps):
 
 # run sim annealing
 convergence_value = 1e-6
-nrestarts = 50
+nrestarts = 1
 nreverts = 1
 print_values = False
 
@@ -61,12 +59,11 @@ print_values = False
     target_pcd_array,
     qvector,
     nsteps,
-    nruns,
+    nrestarts,
     convergence_value,
     step_size,
     print_values,
     target_xyz_array,
-    nrestarts,
     nreverts,
 )
 
@@ -82,9 +79,7 @@ data_file = "data_%s.npz" % run_name_string
 np.savez(
     data_file,
     step_size=step_size,
-    nruns=nruns,
     nsteps=nsteps,
-    starting_temp=starting_temp,
     qvector=qvector,
     target_pcd_array=target_pcd_array,
     final_pcd_traj=final_pcd_traj,
