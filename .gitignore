@@ -10,11 +10,11 @@ iam_arrays*.npz
 xyz/*.png
 notebooks/*.png
 notebooks/*.np[yz]
-*.xyz
 data/*
 data_*
 slides/*
 chd_trajectories/
+*.xyz
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
