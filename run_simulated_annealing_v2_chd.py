@@ -1,6 +1,9 @@
 import numpy as np
 import molecule
 import sys
+from timeit import default_timer
+
+start = default_timer()
 
 # command line arguments
 qmax            = float( sys.argv[1] )
@@ -39,9 +42,10 @@ for t in range(ntsteps):
 
 # run sim annealing
 convergence_value = 1e-6
-nrestarts = 1
-nreverts = 1
+nrestarts = 0
+nreverts = 2
 print_values = False
+save_chi2_path = False
 
 # run sim annealing function
 (
@@ -51,6 +55,7 @@ print_values = False
     final_chi2_traj,
     factor_distribution,
     final_sum_sqrt_distances_traj,
+    chi2_path,
 ) = sp.simulated_annealing_v2(
     title,
     starting_xyz,
@@ -65,6 +70,7 @@ print_values = False
     print_values,
     target_xyz_array,
     nreverts,
+    save_chi2_path,
 )
 
 print('Row 1: target sum sqrt distances:')
@@ -86,4 +92,7 @@ np.savez(
     final_xyz_traj=final_xyz_traj,
     final_chi2_traj=final_chi2_traj,
     factor_distribution=factor_distribution,
+    chi2_path=chi2_path,
 )
+
+print('Total time: %3.2f s' % float(default_timer() - start))

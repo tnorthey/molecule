@@ -1,0 +1,36 @@
+
+in the while loop:
+
+--- (this is probably slow)
+
+function call: displace_xyz()
+
+-> calls self.uniform_factors
+-> calls nm.nm_displacer
+
+---
+
+(fast)
+IAM calculation (hard coded)
+
+(fast)
+PCD calc
+(fast)
+chi2 calc
+(fast)
+temperature calc
+
+check if t > random.rand()
+if step is accepted:
+
+  check if abs(chi2 - chi2_) < 1e-9
+  
+  update chi2, pcd, xyz values
+  
+  factor array
+  
+  check if chi2_ < chi2_best
+
+
+check if i== nsteps_
+  (restart stuff)

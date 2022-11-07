@@ -82,7 +82,6 @@ class Molecule:
             xyztraj[:, :, t] = np.loadtxt(
                 fname, skiprows=14 * t + 2 * (t + 1), max_rows=14, usecols=[1, 2, 3]
             )
-            print(xyztraj[:, :, t])
         return natoms, comment, atomarray, xyztraj
 
     def write_xyz_traj(self, fname, atoms, xyz_traj):
@@ -791,8 +790,7 @@ class Structure_pool_method:
         return 100 * (iam / reference_iam - 1)
 
     def chi2_value(self, x, y):
-        chi2 = np.sum((x - y) ** 2)
-        chi2 /= len(x)  # normalise by len(q)
+        chi2 = np.sum((x - y) ** 2) / len(x)
         return chi2
 
     def rmsd_atoms(self, xyz, xyz_, indices):
@@ -906,7 +904,7 @@ class Structure_pool_method:
                     i += 1  # count steps
                     xyz_, factors_ = displace_xyz(xyz, step_size_)
                     pcd_ = self.pcd_iam(xyz_, atomic_numbers, qvector, reference_iam)
-                    chi2_ = self.chi2_value(pcd_, target_pcd)
+                    chi2_ = np.sum((pcd_ - target_pcd) ** 2) / qlen
                     temp = starting_temp_ * (1 - i / nsteps_)  # decrease temperature
                     if chi2_ < chi2 or temp > random.rand():  # acceptance criteria
                         c += 1  # count acceptances
@@ -1026,6 +1024,9 @@ class Structure_pool_method:
         print_values=False,
         target_xyz_array=[],
         max_reverts=2,
+        save_chi2_path=False,
+        restart_xyz_bool=False,
+        stochastic=True
     ):
         """simulated annealing minimisation to experiment,
         displace along each mode at each step"""
@@ -1046,7 +1047,7 @@ class Structure_pool_method:
         modes = list(range(nmodes))
         # testing: remove wavenumber damping
         w_damping = True
-        h_mode_clamping = True
+        h_mode_clamping = False
         if not w_damping:
             wavenumbers = np.ones(len(wavenumbers))
         if h_mode_clamping:
@@ -1061,11 +1062,95 @@ class Structure_pool_method:
         reference_iam = x.iam_calc(atomic_numbers, reference_xyz, qvector)
 
         def displace_xyz(xyz, step_size):
-            factors = self.uniform_factors(
-                nmodes, displacement_factors
-            )  # random factors
-            xyz = nm.nm_displacer(xyz, displacements, modes, step_size * factors)
             return xyz, factors
+
+        # hard coded IAM coeffs!
+
+        aa = np.array(
+            [
+                [0.489918, 0.262003, 0.196767, 0.049879],  # hydrogen
+                [0.8734, 0.6309, 0.3112, 0.1780],  # helium
+                [1.1282, 0.7508, 0.6175, 0.4653],  # lithium
+                [1.5919, 1.1278, 0.5391, 0.7029],  # berylium
+                [2.0545, 1.3326, 1.0979, 0.7068],  # boron
+                [2.3100, 1.0200, 1.5886, 0.8650],  # carbon
+                [12.2126, 3.1322, 2.0125, 1.1663],  # nitrogen
+                [3.0485, 2.2868, 1.5463, 0.8670],  # oxygen
+                [3.5392, 2.6412, 1.5170, 1.0243],  # fluorine
+                [3.9553, 3.1125, 1.4546, 1.1251],  # neon
+                [4.7626, 3.1736, 1.2674, 1.1128],  # sodium
+                [5.4204, 2.1735, 1.2269, 2.3073],  # magnesium
+                [6.4202, 1.9002, 1.5936, 1.9646],  # aluminium
+                [6.2915, 3.0353, 1.9891, 1.5410],  # Siv
+                [6.4345, 4.1791, 1.7800, 1.4908],  # phosphorus
+                [6.9053, 5.2034, 1.4379, 1.5863],  # sulphur
+                [11.4604, 7.1964, 6.2556, 1.6455],  # chlorine
+            ]
+        )
+
+        bb = np.array(
+            [
+                [20.6593, 7.74039, 49.5519, 2.20159],  # hydrogen
+                [9.1037, 3.3568, 22.9276, 0.9821],  # helium
+                [3.9546, 1.0524, 85.3905, 168.261],  # lithium
+                [43.6427, 1.8623, 103.483, 0.5420],  # berylium
+                [23.2185, 1.0210, 60.3498, 0.1403],  # boron
+                [20.8439, 10.2075, 0.5687, 51.6512],  # carbon
+                [0.00570, 9.8933, 28.9975, 0.5826],  # nitrogen
+                [13.2771, 5.7011, 0.3239, 32.9089],  # oxygen
+                [10.2825, 4.2944, 0.2615, 26.1476],  # fluorine
+                [8.4042, 3.4262, 0.2306, 21.7184],  # Ne
+                [3.2850, 8.8422, 0.3136, 129.424],  # Na
+                [2.8275, 79.2611, 0.3808, 7.1937],  # Mg
+                [3.0387, 0.7426, 31.5472, 85.0886],  # Al
+                [2.4386, 32.3337, 0.6785, 81.6937],  # Siv
+                [1.9067, 27.1570, 0.5260, 68.1645],  # P
+                [1.4679, 22.2151, 0.2536, 56.1720],  # S
+                [0.0104, 1.1662, 18.5194, 47.7784],  # Cl
+            ]
+        )
+
+        cc = np.array(
+            [
+                0.001305,  # hydrogen
+                0.0064,  # helium
+                0.0377,  # lithium
+                0.0385,  # berylium
+                -0.1932,  # boron
+                0.2156,  # carbon
+                -11.529,  # nitrogen
+                0.2508,  # oxygen
+                0.2776,  # fluorine
+                0.3515,  # Ne
+                0.6760,  # Na
+                0.8584,  # Mg
+                1.1151,  # Al
+                1.1407,  # Si
+                1.1149,  # P
+                0.8669,  # S
+                -9.5574,  # Cl
+            ]
+        )
+
+        qlen = len(qvector)
+        atomic_total = np.zeros(qlen)  # total atomic factor
+        atomic_factor_array = np.zeros((natoms, qlen))  # array of atomic factors
+        for k in range(natoms):
+            atomfactor = np.zeros(qlen)
+            for j in range(qlen):
+                for i in range(4):
+                    atomfactor[j] += aa[atomic_numbers[k] - 1, i] * np.exp(
+                        -bb[atomic_numbers[k] - 1, i] * (0.25 * qvector[j] / np.pi) ** 2
+                    )
+            atomfactor += cc[atomic_numbers[k] - 1]
+            atomic_factor_array[k, :] = atomfactor
+            atomic_total += atomfactor**2
+        pre_molecular = np.zeros((natoms, natoms, qlen))
+        for i in range(natoms):
+            for j in range(natoms):
+                pre_molecular[i, j, :] = np.multiply(
+                    atomic_factor_array[i, :], atomic_factor_array[j, :]
+                )
 
         # start loop
         final_xyz_array = np.zeros((natoms, 3, ntimesteps))
@@ -1073,6 +1158,10 @@ class Structure_pool_method:
         final_chi2_array = np.zeros(ntimesteps)
         final_pcd_array = np.zeros((qlen, ntimesteps))
         factor_array = np.zeros(nmodes)
+        chi2_path = np.zeros(
+            (nsteps * (max_restarts + 1) * (max_reverts + 1), ntimesteps)
+        )
+        qpi = qvector / np.pi
         for t in range(ntimesteps):
             print("time-step: %i/%i" % (t + 1, ntimesteps))
             final_chi2 = 1e9  # arbitrarily large start value
@@ -1083,18 +1172,47 @@ class Structure_pool_method:
             chi2, chi2_best = 1e9, 1e9  # arbitrarily large start value
             nrestarts, c, i = 0, 0, 0  # initiate counters
             nreverts = 0
-            starting_temp_ = 0.0
+            starting_temp_ = 0.2
             step_size_ = step_size
             nsteps_ = nsteps
+            restart_xyz_bool_ = restart_xyz_bool
+            stochastic_ = stochastic 
             while i < nsteps_:
                 i += 1  # count steps
-                print(i)
-                xyz_, factors_ = displace_xyz(xyz, step_size_)
-                pcd_ = self.pcd_iam(xyz_, atomic_numbers, qvector, reference_iam)
-                chi2_ = self.chi2_value(pcd_, target_pcd)
+
+                # calculate random displacement factors
+                factors_ = np.zeros(nmodes)
+                for n in range(nmodes):
+                    a = displacement_factors[n]
+                    factors_[n] = 2 * a * random.random_sample() - a
+
+                # displace the xyz coordinates
+                summed_displacement = np.zeros(displacements[0, :, :].shape)
+                for n in range(nmodes):
+                    summed_displacement += displacements[modes[n], :, :] * factors_[n]
+                xyz_ = xyz + summed_displacement
+
+                # IAM calculation
+                molecular = np.zeros(qlen)  # total molecular factor
+                for ii in range(natoms):
+                    for jj in range(ii + 1, natoms):  # j > i
+                        molecular += pre_molecular[ii, jj, :] * np.sinc(
+                            qpi * np.linalg.norm(xyz_[ii, :] - xyz_[jj, :])
+                        )
+                iam_ = atomic_total + 2 * molecular
+
+                # PCD, chi2, temperature calculations
+                pcd_ = 100 * (iam_ / reference_iam - 1)
+                chi2_ = np.sum((pcd_ - target_pcd) ** 2) / qlen
                 temp = starting_temp_ * (1 - i / nsteps_)  # decrease temperature
                 if chi2_ < chi2 or temp > random.rand():
                     # accept the step
+                    if abs(chi2 - chi2_) < 1e-9:
+                        print(
+                            "local minimum (%12.10f, %12.10f). skipping."
+                            % (chi2, chi2_)
+                        )
+                        i = nsteps_ - 1  # go to last step
                     c += 1  # count acceptances
                     chi2, pcd, xyz = chi2_, pcd_, xyz_  # update values
                     factor_array_ += factors_  # check how far along each mode
@@ -1104,27 +1222,47 @@ class Structure_pool_method:
                     if print_values:
                         print("temp = %f" % temp)
                         print("chi2 = %f" % chi2)
+                    if save_chi2_path:
+                        chi2_path[c - 1, t] = chi2_
                     if chi2_ < cutoff_value:
                         print("reached convergence value!")
                         break
                 # criteria for restarting
                 if i == nsteps_:
+                    # don't restart criteria
                     if nreverts > max_reverts:
                         nreverts = 0
                         print("Reached max_reverts. End of t-step...")
                         break
-                    if nrestarts == max_restarts:
-                        nrestarts = 0
-                        nreverts += 1
-                        starting_temp_ = 0.5
-                        print('Max_restarts reached. Trying again with T0 = %3.2f' % starting_temp_)
-                    i, c = 0, 0
-                    nrestarts += 1
-                    xyz = starting_xyz  # back to starting point
-                    print(
-                        "restarting (%i) run (%8.7f > %8.7f)"
-                        % (nrestarts, chi2, cutoff_value)
-                    )
+                    else:
+                        i, c = 0, 0
+                        print(
+                            "restarting (%i) run (%8.7f > %8.7f)"
+                            % (nrestarts, chi2, cutoff_value)
+                        )
+                        if not stochastic_:
+                            nrestarts = max_restarts
+                            stochastic_ = True
+                        if nrestarts < max_restarts:
+                            nrestarts += 1
+                            chi2 = 1e9  # arbitrarily large start value
+                            if restart_xyz_bool_:
+                                print("starting from starting_xyz...")
+                                xyz = starting_xyz
+                        else:
+                            nrestarts = 0
+                            nreverts += 1
+                            if nreverts == 1:
+                                starting_temp_ = 0.5
+                            else:
+                                starting_temp_ = 0.0
+                                xyz = xyz_best
+                            restart_xyz_bool_ = False
+                            if nreverts <= max_reverts:
+                                print(
+                                    "Max_restarts reached. Trying again with T0 = %3.2f"
+                                    % starting_temp_
+                                )
                 # end iterations loop
             # if the run improves on the previous run,
             if chi2 < final_chi2:
@@ -1135,17 +1273,15 @@ class Structure_pool_method:
             # end run loop
             # time-step loop updates:
             starting_xyz = final_xyz  # time-step t starts at geometry t-1
-            # final_xyz_array[:, :, t] = final_xyz
             non_h_indices = [0, 1, 2, 3, 4, 5]
+            # Kabsch rotation to target
             _, r = self.rmsd_kabsch(final_xyz, target_xyz_array[:, :, t], non_h_indices)
             final_xyz_array[:, :, t] = np.dot(final_xyz, r.as_matrix())
             final_chi2_array[t] = final_chi2
             final_pcd_array[:, t] = final_pcd
             final_sum_distances_array[t] = np.sum(
-                m.distances_array(final_xyz[non_h_indices]) ** 1.0
+                m.distances_array(final_xyz[non_h_indices])
             )
-            # print('sum(sqrt(distances)) = %4.3f' % final_sum_sqrt_distances_array[t])
-            # final_pcd8_array[:, t] = self.pcd_iam(final_xyz, atomic_numbers, qvector8, reference_iam8)
             # end time loop
         write_final_xyz = True
         if write_final_xyz:
@@ -1159,6 +1295,7 @@ class Structure_pool_method:
             final_chi2_array,
             factor_array,
             final_sum_distances_array,
+            chi2_path,
         )
 
     def stochastic_descent(
