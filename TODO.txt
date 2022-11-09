@@ -1,0 +1,10 @@
+
+T dependent step-size works much better at low time
+
+- assume some time-steps are further away and the generally lower step-sizes can't reach them
+
+- therefore, needs to increase step-size proportional to t (time)
+--- or decide the step-size somehow at the beginning of each t-step
+--- or increase temperature proportional to t (as that also increases step-size anyway)
+
+

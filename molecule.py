@@ -745,7 +745,8 @@ class Structure_pool_method:
         displacement_factors = np.zeros(nmodes)
         for i in range(nmodes):  # initial factors are inv. prop. to wavenumber
             if wavenumbers[i] > 0:
-                displacement_factors[i] = wavenumbers[0] / wavenumbers[i]
+                displacement_factors[i] = np.exp(wavenumbers[0] / wavenumbers[i])
+                # displacement_factors[i] = wavenumbers[0] / wavenumbers[i]
             else:
                 displacement_factors[i] = 0.0
         displacement_factors *= step_size  # adjust max size of displacement step
@@ -1026,7 +1027,8 @@ class Structure_pool_method:
         max_reverts=2,
         save_chi2_path=False,
         restart_xyz_bool=False,
-        stochastic=True
+        stochastic=True,
+        starting_temp=0.2,
     ):
         """simulated annealing minimisation to experiment,
         displace along each mode at each step"""
@@ -1172,19 +1174,22 @@ class Structure_pool_method:
             chi2, chi2_best = 1e9, 1e9  # arbitrarily large start value
             nrestarts, c, i = 0, 0, 0  # initiate counters
             nreverts = 0
-            starting_temp_ = 0.2
-            step_size_ = step_size
+            starting_temp_ = starting_temp
+            # step_size_ = step_size
+            step_size_ = (t + 1) * step_size / ntimesteps
             nsteps_ = nsteps
             restart_xyz_bool_ = restart_xyz_bool
-            stochastic_ = stochastic 
+            stochastic_ = stochastic
             while i < nsteps_:
                 i += 1  # count steps
+
+                temp = starting_temp_ * (1 - i / nsteps_)  # decrease temperature
 
                 # calculate random displacement factors
                 factors_ = np.zeros(nmodes)
                 for n in range(nmodes):
                     a = displacement_factors[n]
-                    factors_[n] = 2 * a * random.random_sample() - a
+                    factors_[n] = temp * (2 * a * random.random_sample() - a)
 
                 # displace the xyz coordinates
                 summed_displacement = np.zeros(displacements[0, :, :].shape)
@@ -1201,10 +1206,9 @@ class Structure_pool_method:
                         )
                 iam_ = atomic_total + 2 * molecular
 
-                # PCD, chi2, temperature calculations
+                # PCD, chi2 calculations
                 pcd_ = 100 * (iam_ / reference_iam - 1)
                 chi2_ = np.sum((pcd_ - target_pcd) ** 2) / qlen
-                temp = starting_temp_ * (1 - i / nsteps_)  # decrease temperature
                 if chi2_ < chi2 or temp > random.rand():
                     # accept the step
                     if abs(chi2 - chi2_) < 1e-9:
@@ -1252,13 +1256,11 @@ class Structure_pool_method:
                         else:
                             nrestarts = 0
                             nreverts += 1
-                            if nreverts == 1:
-                                starting_temp_ = 0.5
-                            else:
-                                starting_temp_ = 0.0
-                                xyz = xyz_best
                             restart_xyz_bool_ = False
                             if nreverts <= max_reverts:
+                                starting_temp_ = 0.0
+                                xyz = xyz_best
+                                print("starting from xyz_best!")
                                 print(
                                     "Max_restarts reached. Trying again with T0 = %3.2f"
                                     % starting_temp_
@@ -1338,7 +1340,7 @@ class Structure_pool_method:
         if not w_damping:
             wavenumbers = np.ones(len(wavenumbers))
         if h_mode_clamping:
-            wavenumbers[29:35] = 0
+            wavenumbers[29:] = 0
         displacement_factors = self.displacements_from_wavenumbers(
             wavenumbers, step_size
         )
@@ -1436,4 +1438,311 @@ class Structure_pool_method:
             final_chi2_array,
             factor_array,
             final_sum_distances_array,
+        )
+
+    def simulated_annealing_v3(
+        self,
+        title,
+        starting_xyz,
+        displacements,
+        wavenumbers,
+        target_pcd_array,
+        qvector,
+        nsteps=10000,
+        max_restarts=10,
+        cutoff_value=1e-6,
+        step_size=0.1,
+        print_values=False,
+        target_xyz_array=[],
+        max_reverts=2,
+        save_chi2_path=False,
+        restart_xyz_bool=True,
+        stochastic=True,
+        starting_temp=0.2,
+    ):
+        """simulated annealing minimisation to experiment,
+        displace along each mode at each step"""
+        # q vector
+        qmax = qvector[-1]
+        qlen = len(qvector)
+        ntimesteps = target_pcd_array.shape[1]
+        # create a string to define the run
+        run_name_string = "%s_qmax_%2.1f_ds_%3.2f_N_%i_nt_%i" % (
+            title,
+            qmax,
+            step_size,
+            nsteps,
+            ntimesteps,
+        )
+        natoms = starting_xyz.shape[0]
+        nmodes = len(wavenumbers)
+        modes = list(range(nmodes))
+        # testing: remove wavenumber damping
+        w_damping = True
+        h_mode_clamping = False
+        if not w_damping:
+            wavenumbers = np.ones(len(wavenumbers))
+        if h_mode_clamping:
+            wavenumbers[29:] = 0
+        displacement_factors = self.displacements_from_wavenumbers(
+            wavenumbers, step_size
+        )
+        print(displacement_factors)
+        # reference IAM curve
+        reference_xyz_file = "xyz/%s.xyz" % title
+        _, _, atomlist, reference_xyz = m.read_xyz(reference_xyz_file)
+        atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
+        reference_iam = x.iam_calc(atomic_numbers, reference_xyz, qvector)
+
+        # hard coded IAM coeffs!
+        aa = np.array(
+            [
+                [0.489918, 0.262003, 0.196767, 0.049879],  # hydrogen
+                [0.8734, 0.6309, 0.3112, 0.1780],  # helium
+                [1.1282, 0.7508, 0.6175, 0.4653],  # lithium
+                [1.5919, 1.1278, 0.5391, 0.7029],  # berylium
+                [2.0545, 1.3326, 1.0979, 0.7068],  # boron
+                [2.3100, 1.0200, 1.5886, 0.8650],  # carbon
+                [12.2126, 3.1322, 2.0125, 1.1663],  # nitrogen
+                [3.0485, 2.2868, 1.5463, 0.8670],  # oxygen
+                [3.5392, 2.6412, 1.5170, 1.0243],  # fluorine
+                [3.9553, 3.1125, 1.4546, 1.1251],  # neon
+                [4.7626, 3.1736, 1.2674, 1.1128],  # sodium
+                [5.4204, 2.1735, 1.2269, 2.3073],  # magnesium
+                [6.4202, 1.9002, 1.5936, 1.9646],  # aluminium
+                [6.2915, 3.0353, 1.9891, 1.5410],  # Siv
+                [6.4345, 4.1791, 1.7800, 1.4908],  # phosphorus
+                [6.9053, 5.2034, 1.4379, 1.5863],  # sulphur
+                [11.4604, 7.1964, 6.2556, 1.6455],  # chlorine
+            ]
+        )
+
+        bb = np.array(
+            [
+                [20.6593, 7.74039, 49.5519, 2.20159],  # hydrogen
+                [9.1037, 3.3568, 22.9276, 0.9821],  # helium
+                [3.9546, 1.0524, 85.3905, 168.261],  # lithium
+                [43.6427, 1.8623, 103.483, 0.5420],  # berylium
+                [23.2185, 1.0210, 60.3498, 0.1403],  # boron
+                [20.8439, 10.2075, 0.5687, 51.6512],  # carbon
+                [0.00570, 9.8933, 28.9975, 0.5826],  # nitrogen
+                [13.2771, 5.7011, 0.3239, 32.9089],  # oxygen
+                [10.2825, 4.2944, 0.2615, 26.1476],  # fluorine
+                [8.4042, 3.4262, 0.2306, 21.7184],  # Ne
+                [3.2850, 8.8422, 0.3136, 129.424],  # Na
+                [2.8275, 79.2611, 0.3808, 7.1937],  # Mg
+                [3.0387, 0.7426, 31.5472, 85.0886],  # Al
+                [2.4386, 32.3337, 0.6785, 81.6937],  # Siv
+                [1.9067, 27.1570, 0.5260, 68.1645],  # P
+                [1.4679, 22.2151, 0.2536, 56.1720],  # S
+                [0.0104, 1.1662, 18.5194, 47.7784],  # Cl
+            ]
+        )
+
+        cc = np.array(
+            [
+                0.001305,  # hydrogen
+                0.0064,  # helium
+                0.0377,  # lithium
+                0.0385,  # berylium
+                -0.1932,  # boron
+                0.2156,  # carbon
+                -11.529,  # nitrogen
+                0.2508,  # oxygen
+                0.2776,  # fluorine
+                0.3515,  # Ne
+                0.6760,  # Na
+                0.8584,  # Mg
+                1.1151,  # Al
+                1.1407,  # Si
+                1.1149,  # P
+                0.8669,  # S
+                -9.5574,  # Cl
+            ]
+        )
+
+        qlen = len(qvector)
+        atomic_total = np.zeros(qlen)  # total atomic factor
+        atomic_factor_array = np.zeros((natoms, qlen))  # array of atomic factors
+        for k in range(natoms):
+            atomfactor = np.zeros(qlen)
+            for j in range(qlen):
+                for i in range(4):
+                    atomfactor[j] += aa[atomic_numbers[k] - 1, i] * np.exp(
+                        -bb[atomic_numbers[k] - 1, i] * (0.25 * qvector[j] / np.pi) ** 2
+                    )
+            atomfactor += cc[atomic_numbers[k] - 1]
+            atomic_factor_array[k, :] = atomfactor
+            atomic_total += atomfactor**2
+        pre_molecular = np.zeros((natoms, natoms, qlen))
+        for i in range(natoms):
+            for j in range(natoms):
+                pre_molecular[i, j, :] = np.multiply(
+                    atomic_factor_array[i, :], atomic_factor_array[j, :]
+                )
+
+        # start loop
+        final_xyz_array = np.zeros((natoms, 3, ntimesteps))
+        final_sum_distances_array = np.zeros(ntimesteps)
+        final_chi2_array = np.zeros(ntimesteps)
+        final_pcd_array = np.zeros((qlen, ntimesteps))
+        factor_array = np.zeros(nmodes)
+        chi2_path = np.zeros(
+            (nsteps * (max_restarts + 1) * (max_reverts + 1), ntimesteps)
+        )
+        qpi = qvector / np.pi
+        # known bool array
+        known = np.zeros(ntimesteps, dtype=bool)
+        # known[0:15] = True
+        for t in range(ntimesteps):
+            print("time-step: %i/%i" % (t + 1, ntimesteps))
+            final_chi2 = 1e9  # arbitrarily large start value
+            target_pcd = target_pcd_array[:, t]
+            xyz = starting_xyz
+            factor_array_ = np.zeros(nmodes)
+            chi2, chi2_best, chi2_tmp = 1e9, 1e9, 1e10  # arbitrarily large start value
+            nreverts, nrestarts, c, i = 0, 0, 0, 0  # initiate counters
+            starting_temp_ = starting_temp
+            step_size_ = step_size
+            nsteps_ = nsteps
+            restart_xyz_bool_ = restart_xyz_bool
+            max_restarts_ = max_restarts
+            nstepchecks = 0
+            max_stepchecks = 50
+            if known[t]:  # skip the known steps
+                i = nsteps_
+                final_xyz = target_xyz_array[:, :, t]
+                final_pcd = target_pcd_array[:, t]
+                final_chi2 = 1e-5
+            while i < nsteps_:
+                i += 1  # count steps
+
+                tmp = 1 - i / nsteps_  # this is prop. to how far the molecule moves
+                temp = starting_temp_ * tmp  # this is the probability of going uphill
+
+                # calculate random displacement factors
+                factors_ = np.zeros(nmodes)
+                for n in range(nmodes):
+                    a = displacement_factors[n]
+                    factors_[n] = (
+                        tmp * step_size_ * (2 * a * random.random_sample() - a)
+                    )
+
+                # displace the xyz coordinates
+                summed_displacement = np.zeros(displacements[0, :, :].shape)
+                for n in range(nmodes):
+                    summed_displacement += displacements[modes[n], :, :] * factors_[n]
+                xyz_ = xyz + summed_displacement
+
+                # IAM calculation
+                molecular = np.zeros(qlen)  # total molecular factor
+                for ii in range(natoms):
+                    for jj in range(ii + 1, natoms):  # j > i
+                        molecular += pre_molecular[ii, jj, :] * np.sinc(
+                            qpi * np.linalg.norm(xyz_[ii, :] - xyz_[jj, :])
+                        )
+                iam_ = atomic_total + 2 * molecular
+
+                # PCD, chi2 calculations
+                pcd_ = 100 * (iam_ / reference_iam - 1)
+                chi2_ = np.sum((pcd_ - target_pcd) ** 2) / qlen
+                if chi2_ < chi2 or temp > random.rand():
+                    # accept the step
+                    c += 1  # count acceptances
+                    chi2, pcd, xyz = chi2_, pcd_, xyz_  # update values
+                    factor_array_ += factors_  # check how far along each mode
+                    if chi2_ < chi2_best:
+                        # store lowest chi2 values
+                        chi2_best, pcd_best, xyz_best = chi2_, pcd_, xyz_
+                    if print_values:
+                        print("temp = %f" % temp)
+                        print("chi2 = %f" % chi2)
+                    if save_chi2_path:
+                        chi2_path[c - 1, t] = chi2_
+                    if chi2_ < cutoff_value:
+                        print("reached convergence value!")
+                        break
+                    if nrestarts == 0 and nreverts == 0:
+                        # step-size determination
+                        # print('%f %f %i' %(chi2_best, chi2_tmp, i))
+                        if c % int(nsteps_ / 5) == 0 and chi2_best < chi2_tmp:
+                            nstepchecks += 1
+                            chi2_tmp = chi2_best
+                            step_size_best = step_size_
+                            xyz_ = starting_xyz
+                            print("step_size_best: %5.4f, %i" % (step_size_best, i))
+                            i, c = 0, 0
+                            step_size_ = (
+                                step_size * random.rand()
+                            )  # random step_size decrease
+                            if nstepchecks == max_stepchecks:
+                                i = nsteps_
+                                tmp = 0
+                # criteria for restarting
+                if i == nsteps_:
+                    step_size_ = step_size_best
+                    # don't restart criteria
+                    if nreverts > max_reverts:
+                        nreverts = 0
+                        print("Reached max_reverts. End of t-step...")
+                        break
+                    else:
+                        i, c = 0, 0
+                        print(
+                            "restarting (%i) run (%8.7f > %8.7f)"
+                            % (nrestarts, chi2, cutoff_value)
+                        )
+                        chi2 = 1e9  # arbitrarily large start value
+                        if nrestarts < max_restarts_:
+                            nrestarts += 1
+                        else:
+                            # else "revert": start from starting_xyz
+                            nrestarts = 0
+                            nreverts += 1
+                            print("starting from starting_xyz...")
+                            xyz = starting_xyz
+                            restart_xyz_bool_ = False
+                            if nreverts == max_reverts:
+                                starting_temp_ = 0.0
+                                # nsteps_ *= 2
+                                # step_size_ = step_size_ / 2
+                                print(
+                                    "step-size: %3.2f, nsteps: %i"
+                                    % (step_size_, nsteps_)
+                                )
+                                xyz = xyz_best
+                                print("starting from xyz_best!")
+                # end iterations loop
+            # if the run improves on the previous run,
+            if chi2 < final_chi2:
+                final_chi2, final_xyz, final_pcd = chi2_best, xyz_best, pcd_best
+                final_temp = temp
+                factor_array = factor_array_
+                print("chi2 best: %8.7f" % final_chi2)
+            # end run loop
+            # time-step loop updates:
+            starting_xyz = final_xyz  # time-step t starts at geometry t-1
+            non_h_indices = [0, 1, 2, 3, 4, 5]
+            # Kabsch rotation to target
+            _, r = self.rmsd_kabsch(final_xyz, target_xyz_array[:, :, t], non_h_indices)
+            final_xyz_array[:, :, t] = np.dot(final_xyz, r.as_matrix())
+            final_chi2_array[t] = final_chi2
+            final_pcd_array[:, t] = final_pcd
+            final_sum_distances_array[t] = np.sum(
+                m.distances_array(final_xyz[non_h_indices])
+            )
+            # end time loop
+        write_final_xyz = True
+        if write_final_xyz:
+            m.write_xyz_traj(
+                "final_%s.xyz" % run_name_string, atomlist, final_xyz_array
+            )
+        return (
+            run_name_string,
+            final_xyz_array,
+            final_pcd_array,
+            final_chi2_array,
+            factor_array,
+            final_sum_distances_array,
+            chi2_path,
         )

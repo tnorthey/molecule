@@ -42,7 +42,7 @@ for t in range(ntsteps):
 
 # run sim annealing
 convergence_value = 1e-6
-nrestarts = 0
+nrestarts = 5
 nreverts = 2
 print_values = False
 save_chi2_path = False
@@ -56,7 +56,7 @@ save_chi2_path = False
     factor_distribution,
     final_sum_sqrt_distances_traj,
     chi2_path,
-) = sp.simulated_annealing_v2(
+) = sp.simulated_annealing_v3(
     title,
     starting_xyz,
     displacements,
