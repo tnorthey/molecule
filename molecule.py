@@ -1608,7 +1608,7 @@ class Structure_pool_method:
             restart_xyz_bool_ = restart_xyz_bool
             max_restarts_ = max_restarts
             nstepchecks = 0
-            max_stepchecks = 50
+            max_stepchecks = 20
             if known[t]:  # skip the known steps
                 i = nsteps_
                 final_xyz = target_xyz_array[:, :, t]
@@ -1665,19 +1665,22 @@ class Structure_pool_method:
                     if nrestarts == 0 and nreverts == 0:
                         # step-size determination
                         # print('%f %f %i' %(chi2_best, chi2_tmp, i))
-                        if c % int(nsteps_ / 5) == 0 and chi2_best < chi2_tmp:
-                            nstepchecks += 1
-                            chi2_tmp = chi2_best
-                            step_size_best = step_size_
-                            xyz_ = starting_xyz
-                            print("step_size_best: %5.4f, %i" % (step_size_best, i))
+                        if c % int(nsteps_ / 5) == 0:
+                            nstepchecks += 1 
+                            xyz = starting_xyz
                             i, c = 0, 0
+                            chi2 = 1e9
                             step_size_ = (
                                 step_size * random.rand()
                             )  # random step_size decrease
                             if nstepchecks == max_stepchecks:
+                                print('max_stepchecks')
                                 i = nsteps_
-                                tmp = 0
+                                chi2_tmp = 0
+                            if chi2_best < chi2_tmp:
+                                chi2_tmp = chi2_best
+                                step_size_best = step_size_
+                            print("xyz restarted. step_size_best: %5.4f, %i, %6.5f" % (step_size_best, i, chi2_tmp))
                 # criteria for restarting
                 if i == nsteps_:
                     step_size_ = step_size_best
