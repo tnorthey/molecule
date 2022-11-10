@@ -740,13 +740,15 @@ class Structure_pool_method:
             factors[j] = 2 * a * random.random_sample() - a
         return factors
 
-    def displacements_from_wavenumbers(self, wavenumbers, step_size):
+    def displacements_from_wavenumbers(self, wavenumbers, step_size, exponential=False):
         nmodes = len(wavenumbers)
         displacement_factors = np.zeros(nmodes)
         for i in range(nmodes):  # initial factors are inv. prop. to wavenumber
             if wavenumbers[i] > 0:
-                displacement_factors[i] = np.exp(wavenumbers[0] / wavenumbers[i])
-                # displacement_factors[i] = wavenumbers[0] / wavenumbers[i]
+                if exponential:
+                    displacement_factors[i] = np.exp(wavenumbers[0] / wavenumbers[i])
+                else:
+                    displacement_factors[i] = wavenumbers[0] / wavenumbers[i]
             else:
                 displacement_factors[i] = 0.0
         displacement_factors *= step_size  # adjust max size of displacement step
@@ -1608,7 +1610,7 @@ class Structure_pool_method:
             restart_xyz_bool_ = restart_xyz_bool
             max_restarts_ = max_restarts
             nstepchecks = 0
-            max_stepchecks = 20
+            max_stepchecks = 30
             if known[t]:  # skip the known steps
                 i = nsteps_
                 final_xyz = target_xyz_array[:, :, t]
@@ -1677,7 +1679,7 @@ class Structure_pool_method:
                                 print('max_stepchecks')
                                 i = nsteps_
                                 chi2_tmp = 0
-                            if chi2_best < chi2_tmp:
+                            elif chi2_best < chi2_tmp:
                                 chi2_tmp = chi2_best
                                 step_size_best = step_size_
                             print("xyz restarted. step_size_best: %5.4f, %i, %6.5f" % (step_size_best, i, chi2_tmp))
