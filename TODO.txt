@@ -1,3 +1,16 @@
+do this: p run_simulated_annealing_v3_chd.py 12.0 99 0.05 199 30
+if N > 5000, break (something like that, to avoid infinite loop)
+
+20 restarts
+
+keep saving to a file 'restart.npz' all the best ds value for each step, then re-running always improves
+- it loads that value but still adds variance 
+- "UseRestart" option 
+
+
+use knowledge of magnitude oftarget-pcd to have ds(t), and N(t)
+"nearby" assumption, low ds, which increases slightly on restart (or revert)
+
 
 T dependent step-size works much better at low time
 

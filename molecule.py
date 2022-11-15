@@ -127,7 +127,7 @@ class Molecule:
             for j in range(i + 1, natom):
                 dist = np.linalg.norm(xyz[i, :] - xyz[j, :])
                 dist_array[i, j] = dist
-                # dist_array[j, i] = dist  # opposite elements are equal
+                dist_array[j, i] = dist  # opposite elements are equal
         return dist_array
 
     # Coulomb matrix
@@ -1460,7 +1460,7 @@ class Structure_pool_method:
         save_chi2_path=False,
         restart_xyz_bool=True,
         stochastic=True,
-        starting_temp=0.2,
+        starting_temp=0.5,
     ):
         """simulated annealing minimisation to experiment,
         displace along each mode at each step"""
@@ -1487,7 +1487,7 @@ class Structure_pool_method:
         if h_mode_clamping:
             wavenumbers[29:] = 0
         displacement_factors = self.displacements_from_wavenumbers(
-            wavenumbers, step_size
+            wavenumbers, step_size, True
         )
         print(displacement_factors)
         # reference IAM curve
@@ -1585,6 +1585,7 @@ class Structure_pool_method:
 
         # start loop
         final_xyz_array = np.zeros((natoms, 3, ntimesteps))
+        final_distances_array = np.zeros((natoms, natoms, ntimesteps))
         final_sum_distances_array = np.zeros(ntimesteps)
         final_chi2_array = np.zeros(ntimesteps)
         final_pcd_array = np.zeros((qlen, ntimesteps))
@@ -1595,7 +1596,18 @@ class Structure_pool_method:
         qpi = qvector / np.pi
         # known bool array
         known = np.zeros(ntimesteps, dtype=bool)
-        # known[0:15] = True
+        #known[0:39] = True
+        thresh_array = np.ones(ntimesteps)
+        thresh_array[0] = 2e-4
+        thresh_array[1:16] = 1e-4
+        thresh_array[16:20] = 5e-4
+        thresh_array[20:24] = 5e-4
+        thresh_array[24:28] = 1e-3
+        thresh_array[28:34] = 1e-3
+        thresh_array[34:42] = 5e-3
+        thresh_array[42:49] = 5e-3
+        thresh_array[1:30] = 1e-4
+        print(thresh_array)
         for t in range(ntimesteps):
             print("time-step: %i/%i" % (t + 1, ntimesteps))
             final_chi2 = 1e9  # arbitrarily large start value
@@ -1610,7 +1622,10 @@ class Structure_pool_method:
             restart_xyz_bool_ = restart_xyz_bool
             max_restarts_ = max_restarts
             nstepchecks = 0
-            max_stepchecks = 30
+            max_stepchecks = 0
+            abs_mean = np.sum(np.abs(target_pcd)) / qlen
+            print('ABS MEAN: %5.4f' % abs_mean)
+            #step_size_best = step_size
             if known[t]:  # skip the known steps
                 i = nsteps_
                 final_xyz = target_xyz_array[:, :, t]
@@ -1647,7 +1662,7 @@ class Structure_pool_method:
 
                 # PCD, chi2 calculations
                 pcd_ = 100 * (iam_ / reference_iam - 1)
-                chi2_ = np.sum((pcd_ - target_pcd) ** 2) / qlen
+                chi2_ = np.sum((pcd_ - target_pcd) ** 2) / (qlen * abs_mean)
                 if chi2_ < chi2 or temp > random.rand():
                     # accept the step
                     c += 1  # count acceptances
@@ -1664,7 +1679,7 @@ class Structure_pool_method:
                     if chi2_ < cutoff_value:
                         print("reached convergence value!")
                         break
-                    if nrestarts == 0 and nreverts == 0:
+                    if nrestarts == 0 and nreverts == 0 and max_stepchecks != 0:
                         # step-size determination
                         # print('%f %f %i' %(chi2_best, chi2_tmp, i))
                         if c % int(nsteps_ / 5) == 0:
@@ -1685,12 +1700,33 @@ class Structure_pool_method:
                             print("xyz restarted. step_size_best: %5.4f, %i, %6.5f" % (step_size_best, i, chi2_tmp))
                 # criteria for restarting
                 if i == nsteps_:
-                    step_size_ = step_size_best
+                    if nsteps_ > 2000:
+                        print('too many iterations. Accepting best, breaking.')
+                        final_chi2, final_xyz, final_pcd = chi2_best, xyz_best, pcd_best
+                        final_temp = temp
+                        factor_array = factor_array_
+                        print("chi2 best: %8.7f" % final_chi2)
+                        break
+                    #step_size_ = step_size_best
                     # don't restart criteria
                     if nreverts > max_reverts:
                         nreverts = 0
-                        print("Reached max_reverts. End of t-step...")
-                        break
+                        if chi2_best < thresh_array[t]:
+                            final_chi2, final_xyz, final_pcd = chi2_best, xyz_best, pcd_best
+                            final_temp = temp
+                            factor_array = factor_array_
+                            print("chi2 best: %8.7f" % final_chi2)
+                            print("Reached max_reverts. End of t-step...")
+                            break
+                        else:
+                            i, c = 0, 0
+                            chi2 = 1e9
+                            xyz = starting_xyz
+                            chi2_best = 1e9
+                            nsteps_ += int(nsteps_ * random.rand())
+                            step_size_ = step_size * 1 * random.rand()
+                            print('RESTART becasue chi2 is >= %5.4f' % thresh_array[t])
+                            print('nsteps = %i, steps_size = %4.3f' % (nsteps_, step_size_))
                     else:
                         i, c = 0, 0
                         print(
@@ -1717,14 +1753,7 @@ class Structure_pool_method:
                                 )
                                 xyz = xyz_best
                                 print("starting from xyz_best!")
-                # end iterations loop
-            # if the run improves on the previous run,
-            if chi2 < final_chi2:
-                final_chi2, final_xyz, final_pcd = chi2_best, xyz_best, pcd_best
-                final_temp = temp
-                factor_array = factor_array_
-                print("chi2 best: %8.7f" % final_chi2)
-            # end run loop
+                                # end run loop
             # time-step loop updates:
             starting_xyz = final_xyz  # time-step t starts at geometry t-1
             non_h_indices = [0, 1, 2, 3, 4, 5]
@@ -1733,21 +1762,19 @@ class Structure_pool_method:
             final_xyz_array[:, :, t] = np.dot(final_xyz, r.as_matrix())
             final_chi2_array[t] = final_chi2
             final_pcd_array[:, t] = final_pcd
-            final_sum_distances_array[t] = np.sum(
-                m.distances_array(final_xyz[non_h_indices])
-            )
             # end time loop
         write_final_xyz = True
         if write_final_xyz:
             m.write_xyz_traj(
                 "final_%s.xyz" % run_name_string, atomlist, final_xyz_array
             )
+        if np.sum(np.sum(chi2_path)) == 0:
+            chi2_path = 0
         return (
             run_name_string,
             final_xyz_array,
             final_pcd_array,
             final_chi2_array,
             factor_array,
-            final_sum_distances_array,
             chi2_path,
         )

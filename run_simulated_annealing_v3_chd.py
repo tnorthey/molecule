@@ -31,19 +31,19 @@ displacements = nm.read_nm_displacements(nmfile, natom)
 # "experiment" target percent diff
 target_pcd_array = np.zeros((qlen, ntsteps))
 target_xyz_array = np.zeros((natom, 3, ntsteps))
-target_sum_sqrt_distances = np.zeros(ntsteps)
+target_sum_distances = np.zeros(ntsteps)
 _, _, _, target_xyz_array = m.read_xyz_traj("xyz/chd_target_traj.xyz", ntsteps)
 for t in range(ntsteps):
     non_h_indices = [0, 1, 2, 3, 4, 5]
-    distances = m.distances_array(target_xyz_array[non_h_indices, : , t])
-    target_sum_sqrt_distances[t] = np.sum(distances**1.0)
+    target_distances = m.distances_array(target_xyz_array[non_h_indices, : , t])
+    target_sum_distances[t] = np.sum(target_distances)
     target_iam = x.iam_calc(atomic_numbers, target_xyz_array[:, : , t], qvector)
     target_pcd_array[:, t] = 100 * (target_iam / starting_iam - 1)
 
 # run sim annealing
 convergence_value = 1e-6
-nrestarts = 5
-nreverts = 2
+nrestarts = 19
+nreverts = 1
 print_values = False
 save_chi2_path = False
 
@@ -54,7 +54,6 @@ save_chi2_path = False
     final_pcd_traj,
     final_chi2_traj,
     factor_distribution,
-    final_sum_sqrt_distances_traj,
     chi2_path,
 ) = sp.simulated_annealing_v3(
     title,
@@ -73,12 +72,18 @@ save_chi2_path = False
     save_chi2_path,
 )
 
+# found distances etc.
+found_sum_distances = np.zeros(ntsteps)
+for t in range(ntsteps):
+    found_distances = m.distances_array(final_xyz_traj[non_h_indices, : , t])
+    found_sum_distances[t] = np.sum(found_distances)
+
 print('Row 1: target sum sqrt distances:')
 print('Row 2: found')
 print('Row 2: |target - found|')
-print(target_sum_sqrt_distances)
-print(final_sum_sqrt_distances_traj)
-print(np.abs(target_sum_sqrt_distances - final_sum_sqrt_distances_traj))
+print(target_sum_distances)
+print(found_sum_distances)
+print(np.abs(target_sum_distances - found_sum_distances))
 
 # save to file
 data_file = "data_%s.npz" % run_name_string
@@ -92,6 +97,7 @@ np.savez(
     final_xyz_traj=final_xyz_traj,
     final_chi2_traj=final_chi2_traj,
     factor_distribution=factor_distribution,
+    final_distances=found_distances,
     chi2_path=chi2_path,
 )
 

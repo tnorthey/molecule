@@ -41,12 +41,22 @@
 	
 	\section{Method}
 	
+	\subsection{Simulated Annealing}
+	
 	The molecular coordinates move iteratively according to,
 	\[
-	\textbf{R}_{i+1} = \textbf{R}_{i} + T_i\Delta s\sum_{k=0}^{\textrm{modes}} \Big(\frac{\omega_0}{\omega_k}\Big) a_k\hat{d}_k
+	\textbf{R}_{i+1} = \textbf{R}_{i} + T_i\Delta s\sum_{k=0}^{\textrm{modes}}w_k a_k\hat{d}_k
 	\]
 	for temperature $T_i$ at iteration $i$, step-size $\Delta s$, displacement unit vectors $\hat{d}_k$, and wavenumbers $\omega_k$ for each normal mode. The factors $a_k$ are obtained from a uniform random distribution with range $[-1, 1]$ to allow the molecule unconstrained movement along all its degrees of freedom.
-	The motions are $\omega$-damped by the factor (${\omega_0}/{\omega_k}$) to avoid oversampling large motions of high frequency modes.
+	The motions are $\omega$-damped by the factor,
+	\[
+	w_k = \frac{\omega_0}{\omega_k}
+	\]
+	or
+	\[
+	w_k = \exp\Big(\frac{\omega_0}{\omega_k}\Big)
+	\]
+	for mode wavenumbers $\{\omega_0, \omega_1, \dots, \omega_n\}$, to avoid oversampling large motions of high frequency modes.
 	
 	The temperature decreases linearly at iteration $i$ as,
 	\[
