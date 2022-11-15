@@ -1614,7 +1614,7 @@ class Structure_pool_method:
             target_pcd = target_pcd_array[:, t]
             xyz = starting_xyz
             factor_array_ = np.zeros(nmodes)
-            chi2, chi2_best, chi2_tmp = 1e9, 1e9, 1e10  # arbitrarily large start value
+            chi2, chi2_best, chi2_best_, chi2_tmp = 1e9, 1e9, 1e9, 1e10  # arbitrarily large start value
             nreverts, nrestarts, c, i = 0, 0, 0, 0  # initiate counters
             starting_temp_ = starting_temp
             step_size_ = step_size
@@ -1671,6 +1671,9 @@ class Structure_pool_method:
                     if chi2_ < chi2_best:
                         # store lowest chi2 values
                         chi2_best, pcd_best, xyz_best = chi2_, pcd_, xyz_
+                    if chi2_ < chi2_best_:
+                        # store lowest chi2 values
+                        chi2_best_, pcd_best_, xyz_best_ = chi2_, pcd_, xyz_
                     if print_values:
                         print("temp = %f" % temp)
                         print("chi2 = %f" % chi2)
@@ -1702,7 +1705,7 @@ class Structure_pool_method:
                 if i == nsteps_:
                     if nsteps_ > 2000:
                         print('too many iterations. Accepting best, breaking.')
-                        final_chi2, final_xyz, final_pcd = chi2_best, xyz_best, pcd_best
+                        final_chi2, final_xyz, final_pcd = chi2_best_, xyz_best_, pcd_best_
                         final_temp = temp
                         factor_array = factor_array_
                         print("chi2 best: %8.7f" % final_chi2)
