@@ -19,6 +19,11 @@ Thomas Northey, Nikola Zotev, and Adam Kirrander.
 \newblock {\em Journal of Chemical Theory and Computation}, 10(11):4911--4920,
   2014.
 
+\bibitem{press2007numerical}
+William~H Press, Saul~A Teukolsky, William~T Vetterling, and Brian~P Flannery.
+\newblock {\em Numerical recipes 3rd edition: The art of scientific computing}.
+\newblock Cambridge university press, 2007.
+
 \bibitem{stankus2019ultrafast}
 Brian Stankus, Haiwang Yong, Nikola Zotev, Jennifer~M Ruddock, Darren Bellshaw,
   Thomas~J Lane, Mengning Liang, S{\'e}bastien Boutet, Sergio Carbajo, Joseph~S

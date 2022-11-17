@@ -39,15 +39,25 @@
 	
 	Some references \cite{yong2019scattering,yong2021determination,stankus2019ultrafast,wolf2019photochemical,moreno2019ab,northey2014ab,northey2016elastic}
 	
+	\subsection{Simulated annealing}
+	
+	Simulated annealing is a type of Metropolis algorithm, in that it always takes a downhill step while sometimes taking an uphill step \cite{press2007numerical}.
+	
+	It is a powerful tool in combinatorial minimisation, where the space over the which the function is defined is a discrete but very large configuration space. The size of the configurational space is factorially large, so that it cannot be explored exhaustively. Furthermore, since the set is discrete, we are deprived of any notion of continuing downhill in a favourable direction. The concept of direction may not have any meaning in the configuration space. A classic example of this is the travelling salesman problem.(taken from \cite{press2007numerical})
+	
+	
+	The x-ray scattering signal is predominantly governed by the set of interatomic distances in any given molecule, as we know from the Debye model (independent atom model). The molecule itself moves along a continuous potential energy surface.
+	
+	
 	\section{Method}
 	
 	\subsection{Simulated Annealing}
 	
 	The molecular coordinates move iteratively according to,
 	\[
-	\textbf{R}_{i+1} = \textbf{R}_{i} + T_i\Delta s\sum_{k=0}^{\textrm{modes}}w_k a_k\hat{d}_k
+	\textbf{R}_{i+1} = \textbf{R}_{i} + T_i\sum_{k=0}^{\textrm{modes}}a_k\hat{d}_k
 	\]
-	for temperature $T_i$ at iteration $i$, step-size $\Delta s$, displacement unit vectors $\hat{d}_k$, and wavenumbers $\omega_k$ for each normal mode. The factors $a_k$ are obtained from a uniform random distribution with range $[-1, 1]$ to allow the molecule unconstrained movement along all its degrees of freedom.
+	for temperature $T_i$ at iteration $i$, step-size $\Delta s$, displacement unit vectors $\hat{d}_k$, and wavenumbers $\omega_k$ for each normal mode. The factors $a_k$ are obtained from a uniform random distribution with range $\Delta s_k[-1, 1]$ to allow the molecule unconstrained movement along all its degrees of freedom.
 	The motions are $\omega$-damped by the factor,
 	\[
 	w_k = \frac{\omega_0}{\omega_k}
@@ -74,7 +84,13 @@
 	P = T_i
 	\]
 	which allows the molecule to sometimes travel uphill on the $\chi^2$ surface, thus escape local minima.
-	
+	\[
+	\chi^2 = (x-y)^2
+	\]
+	If using multiple target and predicted data sources,
+	\[
+	\chi^2 = \sum_k A_k(x_k-y_k)^2
+	\]
 	\section{Algorithm}
 	
 	\subsection{current testing version}

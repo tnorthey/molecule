@@ -18,6 +18,7 @@ x = molecule.Xray()
 sp = molecule.Structure_pool_method()
 qvector = np.linspace(0, qmax, qlen, endpoint=True)
 
+title = 'chd_t48'
 title = 'chd'
 _, _, atomlist, xyz = m.read_xyz("xyz/%s.xyz" % title)
 atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
@@ -33,6 +34,11 @@ target_pcd_array = np.zeros((qlen, ntsteps))
 target_xyz_array = np.zeros((natom, 3, ntsteps))
 target_sum_distances = np.zeros(ntsteps)
 _, _, _, target_xyz_array = m.read_xyz_traj("xyz/chd_target_traj.xyz", ntsteps)
+#reverse_time = True
+reverse_time = False
+if reverse_time:
+    target_xyz_array = np.flip(target_xyz_array, axis=2)
+    print(target_xyz_array[:, :, 0])
 for t in range(ntsteps):
     non_h_indices = [0, 1, 2, 3, 4, 5]
     target_distances = m.distances_array(target_xyz_array[non_h_indices, : , t])
@@ -43,7 +49,7 @@ for t in range(ntsteps):
 # run sim annealing
 convergence_value = 1e-6
 nrestarts = 19
-nreverts = 1
+nreverts = 2
 print_values = False
 save_chi2_path = False
 

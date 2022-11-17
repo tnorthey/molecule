@@ -849,8 +849,8 @@ class Structure_pool_method:
         nmodes = len(wavenumbers)
         modes = list(range(nmodes))
         # testing: remove wavenumber damping
-        w_damping = True
-        h_mode_clamping = True
+        w_damping = False
+        h_mode_clamping = False
         if not w_damping:
             wavenumbers = np.ones(len(wavenumbers))
         if h_mode_clamping:
@@ -1442,6 +1442,19 @@ class Structure_pool_method:
             final_sum_distances_array,
         )
 
+    def step_size_finder(self, xyz_start, displacements):
+        natoms = xyz_start.shape[0]
+
+        displacements = self.read_nm_displacements(nmfile, natoms)
+        a = factor
+        factor = np.linspace(-a, a, 20, endpoint=True)
+        factor = np.append(factor, np.linspace(a, -a, 20, endpoint=True))
+        _, _, atoms, xyz_start = m.read_xyz(xyz_start_file)
+        for k in range(len(factor)):
+            xyz = self.nm_displacer(xyz_start, displacements, mode, factor[k])
+
+        return ds_best, chi2_path
+
     def simulated_annealing_v3(
         self,
         title,
@@ -1596,7 +1609,7 @@ class Structure_pool_method:
         qpi = qvector / np.pi
         # known bool array
         known = np.zeros(ntimesteps, dtype=bool)
-        #known[0:39] = True
+        #known[0:20] = True
         thresh_array = np.ones(ntimesteps)
         thresh_array[0] = 2e-4
         thresh_array[1:16] = 1e-4
@@ -1617,7 +1630,11 @@ class Structure_pool_method:
             chi2, chi2_best, chi2_best_, chi2_tmp = 1e9, 1e9, 1e9, 1e10  # arbitrarily large start value
             nreverts, nrestarts, c, i = 0, 0, 0, 0  # initiate counters
             starting_temp_ = starting_temp
-            step_size_ = step_size
+            if t < 2:
+                step_size_ = step_size * np.ones(nmodes)
+            else:
+                step_size_ = 2 * np.abs(factor_array)
+            print(step_size_)
             nsteps_ = nsteps
             restart_xyz_bool_ = restart_xyz_bool
             max_restarts_ = max_restarts
@@ -1642,7 +1659,7 @@ class Structure_pool_method:
                 for n in range(nmodes):
                     a = displacement_factors[n]
                     factors_[n] = (
-                        tmp * step_size_ * (2 * a * random.random_sample() - a)
+                        tmp * step_size_[n] * (2 * a * random.random_sample() - a)
                     )
 
                 # displace the xyz coordinates
@@ -1723,19 +1740,23 @@ class Structure_pool_method:
                             break
                         else:
                             i, c = 0, 0
+                            factor_array_ = np.zeros(nmodes)
                             chi2 = 1e9
                             xyz = starting_xyz
                             chi2_best = 1e9
-                            nsteps_ += int(nsteps_ * random.rand())
-                            step_size_ = step_size * 1 * random.rand()
+                            #nsteps_ += int(nsteps_ * random.rand())
+                            nsteps_ *= 1.5
+                            #step_size_ = step_size * (0.9 * random.rand() + 0.1)
                             print('RESTART becasue chi2 is >= %5.4f' % thresh_array[t])
-                            print('nsteps = %i, steps_size = %4.3f' % (nsteps_, step_size_))
+                            #print('nsteps = %i, steps_size = %4.3f' % (nsteps_, step_size_))
+                            print('nsteps = %i' % nsteps_)
                     else:
-                        i, c = 0, 0
                         print(
                             "restarting (%i) run (%8.7f > %8.7f)"
                             % (nrestarts, chi2, cutoff_value)
                         )
+                        i, c = 0, 0
+                        factor_array_ = np.zeros(nmodes)
                         chi2 = 1e9  # arbitrarily large start value
                         if nrestarts < max_restarts_:
                             nrestarts += 1
@@ -1750,10 +1771,11 @@ class Structure_pool_method:
                                 starting_temp_ = 0.0
                                 # nsteps_ *= 2
                                 # step_size_ = step_size_ / 2
-                                print(
-                                    "step-size: %3.2f, nsteps: %i"
-                                    % (step_size_, nsteps_)
-                                )
+                                print('nsteps = %i' % nsteps_)
+                                #print(
+                                #    "step-size: %3.2f, nsteps: %i"
+                                #    % (step_size_, nsteps_)
+                                #)
                                 xyz = xyz_best
                                 print("starting from xyz_best!")
                                 # end run loop
@@ -1765,6 +1787,8 @@ class Structure_pool_method:
             final_xyz_array[:, :, t] = np.dot(final_xyz, r.as_matrix())
             final_chi2_array[t] = final_chi2
             final_pcd_array[:, t] = final_pcd
+            # write xyz file at each t
+            m.write_xyz('out_%i.xyz' % t, 't %i' % t, atomlist, final_xyz)
             # end time loop
         write_final_xyz = True
         if write_final_xyz:
