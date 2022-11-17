@@ -1636,15 +1636,19 @@ class Structure_pool_method:
             )  # arbitrarily large start value
             nreverts, nrestarts, c, i = 0, 0, 0, 0  # initiate counters
             starting_temp_ = starting_temp
-            if t < 3:
+            int_len = 2
+            if t <= int_len:
                 step_size_ = step_size * np.ones(nmodes)
             else:
-                t_int_factors = np.sum(final_factor_array[:, t - 2 : t], axis=1) / 2
+                t_int_factors = np.sum(final_factor_array[:, t - 4 : t], axis=1) / int_len
+                abs_factors = np.abs(t_int_factors)
+                sum_abs_factors = np.sum(abs_factors)
+                mean_abs_factors = np.mean(abs_factors)
                 step_size_ = (
                     nmodes
                     * step_size
                     * np.abs(t_int_factors)
-                    / np.sum(np.abs(t_int_factors))
+                    / sum_abs_factors + 1 * mean_abs_factors
                 )
             print(step_size_)
             nsteps_ = nsteps
@@ -1711,7 +1715,7 @@ class Structure_pool_method:
                         break
                 # criteria for restarting
                 if i == nsteps_:
-                    if nsteps_ > 2000:
+                    if nsteps_ > 300:
                         print("too many iterations. Accepting best, breaking.")
                         final_chi2, final_xyz, final_pcd = (
                             chi2_best_,
