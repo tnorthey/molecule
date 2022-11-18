@@ -1474,6 +1474,7 @@ class Structure_pool_method:
         restart_xyz_bool=True,
         stochastic=True,
         starting_temp=0.2,
+        ballistic=False,
     ):
         """simulated annealing minimisation to experiment,
         displace along each mode at each step"""
@@ -1636,19 +1637,22 @@ class Structure_pool_method:
             )  # arbitrarily large start value
             nreverts, nrestarts, c, i = 0, 0, 0, 0  # initiate counters
             starting_temp_ = starting_temp
-            int_len = 2
-            if t <= int_len:
-                step_size_ = step_size * np.ones(nmodes)
+            if ballistic:
+                int_len = 2
+                if t <= int_len:
+                    step_size_ = step_size * np.ones(nmodes)
+                else:
+                    t_int_factors = (
+                        np.sum(final_factor_array[:, t - int_len : t], axis=1) / int_len
+                    )
+                    abs_factors = np.abs(t_int_factors)
+                    abs_factors += step_size
+                    sum_abs_factors = np.sum(abs_factors)
+                    step_size_ = (
+                        1 * nmodes * step_size * abs_factors / sum_abs_factors
+                    )
             else:
-                t_int_factors = (
-                    np.sum(final_factor_array[:, t - int_len : t], axis=1) / int_len
-                )
-                abs_factors = np.abs(t_int_factors)
-                abs_factors += step_size
-                sum_abs_factors = np.sum(abs_factors)
-                step_size_ = (
-                    1 * nmodes * step_size * abs_factors / sum_abs_factors
-                )
+                step_size_ = step_size * np.ones(nmodes)
             print(step_size_)
             nsteps_ = nsteps
             restart_xyz_bool_ = restart_xyz_bool
@@ -1714,7 +1718,7 @@ class Structure_pool_method:
                         break
                 # criteria for restarting
                 if i == nsteps_:
-                    if nsteps_ > 1000:
+                    if nsteps_ > 1200:
                         print("too many iterations. Accepting best, breaking.")
                         final_chi2, final_xyz, final_pcd = (
                             chi2_best_,
