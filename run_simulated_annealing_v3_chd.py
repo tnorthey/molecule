@@ -48,7 +48,7 @@ for t in range(ntsteps):
 
 # run sim annealing
 convergence_value = 1e-6
-nrestarts = 19
+nrestarts = 14
 nreverts = 2
 print_values = False
 save_chi2_path = False

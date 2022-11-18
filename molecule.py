@@ -1473,7 +1473,7 @@ class Structure_pool_method:
         save_chi2_path=False,
         restart_xyz_bool=True,
         stochastic=True,
-        starting_temp=0.5,
+        starting_temp=0.2,
     ):
         """simulated annealing minimisation to experiment,
         displace along each mode at each step"""
@@ -1640,15 +1640,14 @@ class Structure_pool_method:
             if t <= int_len:
                 step_size_ = step_size * np.ones(nmodes)
             else:
-                t_int_factors = np.sum(final_factor_array[:, t - 4 : t], axis=1) / int_len
+                t_int_factors = (
+                    np.sum(final_factor_array[:, t - int_len : t], axis=1) / int_len
+                )
                 abs_factors = np.abs(t_int_factors)
+                abs_factors += step_size
                 sum_abs_factors = np.sum(abs_factors)
-                mean_abs_factors = np.mean(abs_factors)
                 step_size_ = (
-                    nmodes
-                    * step_size
-                    * np.abs(t_int_factors)
-                    / sum_abs_factors + 1 * mean_abs_factors
+                    1 * nmodes * step_size * abs_factors / sum_abs_factors
                 )
             print(step_size_)
             nsteps_ = nsteps
@@ -1715,7 +1714,7 @@ class Structure_pool_method:
                         break
                 # criteria for restarting
                 if i == nsteps_:
-                    if nsteps_ > 300:
+                    if nsteps_ > 1000:
                         print("too many iterations. Accepting best, breaking.")
                         final_chi2, final_xyz, final_pcd = (
                             chi2_best_,
@@ -1748,7 +1747,7 @@ class Structure_pool_method:
                             xyz = starting_xyz
                             chi2_best = 1e9
                             # nsteps_ += int(nsteps_ * random.rand())
-                            nsteps_ += int(nsteps_ * 0.5)
+                            nsteps_ += int(nsteps_ * 1)
                             # step_size_ = step_size * (0.9 * random.rand() + 0.1)
                             print("RESTART becasue chi2 is >= %5.4f" % thresh_array[t])
                             # print('nsteps = %i, steps_size = %4.3f' % (nsteps_, step_size_))
