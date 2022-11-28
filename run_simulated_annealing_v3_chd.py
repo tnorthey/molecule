@@ -45,11 +45,12 @@ for t in range(ntsteps):
     target_sum_distances[t] = np.sum(target_distances)
     target_iam = x.iam_calc(atomic_numbers, target_xyz_array[:, : , t], qvector)
     target_pcd_array[:, t] = 100 * (target_iam / starting_iam - 1)
+    target_pcd_array[:, t] /= np.max(np.abs(target_pcd_array[:, t]))  # normalise abs. max value to 1
 
 # run sim annealing
 convergence_value = 1e-6
-nrestarts = 14
-nreverts = 2
+nrestarts = 1
+nreverts = 5
 print_values = False
 save_chi2_path = False
 
@@ -80,8 +81,10 @@ save_chi2_path = False
 
 # found distances etc.
 found_sum_distances = np.zeros(ntsteps)
+found_distances_traj = np.zeros((natom, natom, ntsteps))
 for t in range(ntsteps):
-    found_distances = m.distances_array(final_xyz_traj[non_h_indices, : , t])
+    found_distances = m.distances_array(final_xyz_traj[:, : , t])
+    found_distances_traj[:, :, t] = found_distances
     found_sum_distances[t] = np.sum(found_distances)
 
 print('Row 1: target sum sqrt distances:')

@@ -1,0 +1,33 @@
+
+SA involves the step of choosing the next sample
+i.e. perturbing the molecule somehow
+
+
+Cartesians:
+
+I can move each atom randomly, but that's by a direction and a magnitude
+- normal modes is only by a magnitude
+
+
+Distances / Inverse distances:
+
+If I use distances (or inverse distances), I need to map back to xyz coordinates.
+There isn't a 1:1 mapping from distances to xyz
+
+I can displace the distances, and then add that displacement to xyz
+How are the displacements defined by changing a distance?
+
+
+Gradient:
+
+I want to change the target function the most. That is move along the gradient...
+Seems to not care what coordinates I use... as long as I move along the gradient. ?
+
+Ok, try that.
+
+
+The coefficients (assume they are r_ij) change by -alpha * gradient_of_chi2
+- I know the gradient, so it's possible
+- Do for diatomic
+- do for triatomic, etc.
+

@@ -47,8 +47,6 @@ def test_read_xyz_traj():
     fname = 'out.xyz'
     m.write_xyz_traj(fname, atomlist, xyz_traj)
 
-test_read_xyz_traj()
-
 def test_sort_array():
     print(atomic_numbers)
     print(xyz)
@@ -196,4 +194,41 @@ def test_simulated_annealing():
         fname = 'data/min_traj.xyz'
         sp.xyz_traj_to_file(atomlist, xyz_min_traj, fname)
 
-#test_simulated_annealing()
+def test_simulated_annealing_v4():
+    title = 'chd'
+    _, _, atomlist, starting_xyz = m.read_xyz("xyz/chd.xyz")
+    atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
+    nmfile = "nm/chd_normalmodes.txt"
+    natoms = 14
+    displacements = nm.read_nm_displacements(nmfile, natoms)
+    qlen = 99
+    qvector = np.linspace(0, 12, qlen, endpoint=True)
+    starting_iam = x.iam_calc(atomic_numbers, starting_xyz, qvector)
+    # "experiment" target percent diff
+    tlen = 18
+    target_pcd_array = np.zeros((qlen, tlen))
+    _, _, _, target_xyz_array = m.read_xyz_traj("xyz/chd_target_traj.xyz", tlen)
+    for t in range(tlen):
+        target_iam = x.iam_calc(atomic_numbers, target_xyz_array[:, : , t], qvector)
+        target_pcd_array[:, t] = 100 * (target_iam / starting_iam - 1)
+        target_pcd_array[:, t] /= np.max(np.abs(target_pcd_array[:, t]))  # normalise abs. max value to 1
+    target_pcd = target_pcd_array[:, 0]
+
+    starting_temp = 0.2
+    nsteps = 100
+    step_size = 0.1
+    chi2_best, pcd_best, xyz_best = sp.simulated_annealing_v4(
+        title,
+        displacements,
+        target_pcd,
+        qvector,
+        starting_temp,
+        nsteps,
+        step_size,
+    )
+    print(chi2_best)
+    print(pcd_best)
+    print(xyz_best)
+
+test_simulated_annealing_v4()
+

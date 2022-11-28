@@ -51,8 +51,9 @@
 	
 	\section{Method}
 	
-	\subsection{Simulated Annealing}
+	\subsection{Simulated Annealing for molecules}
 	
+	\subsubsection{Theory}
 	The molecular coordinates move iteratively according to,
 	\[
 	\textbf{R}_{i+1} = \textbf{R}_{i} + T_i\sum_{k=0}^{\textrm{modes}}a_k\hat{d}_k
@@ -91,9 +92,20 @@
 	\[
 	\chi^2 = \sum_k A_k(x_k-y_k)^2
 	\]
-	\section{Algorithm}
+
+
+	\subsubsection{Algorithm}
+	Current working strategy.
 	
-	\subsection{current testing version}
+	\begin{itemize}
+		
+		\item	Low step-size (e.g.\ $\Delta s = 0.03$), large number of steps, multiple restarts (e.g.\ 10), last restart is a stochastic descent ($T_0 = 0$; greedy algorithm) starting from $\chi^2_\textrm{best}$.
+		
+		This usually finds very good starting time-steps, because the low step-size combined with large $N$ is very good at finding structures nearby to the starting geometry. That is, when the ring is starting to open.
+		
+		\item Subsequent runs with varying step-sizes (usually larger to find further away structures, $\Delta s = 0.05, 0.1, 0.2$) that load data from the previous run, and accept time-steps with $\chi^2 < \beta$, for e.g.\ $\beta = 10^{-5}$ or $10^{-6}$ (how low you can set the target depends on noise of data, in practice set it slightly lower than the best $\chi^2$ values of the first run). It will re-run time-steps starting from the previous `good' structures at earlier time. 
+		
+	\end{itemize}
 	
 	Assumption: the next best fit is `nearby' the previous step.
 	
@@ -111,29 +123,31 @@
 		
 	\end{itemize}
 	
+
 	
 	\section{Results}
 
+	\subsection{CHD ring-opening example}
+	
 	\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{lineouts.png}
 	\caption{CHD x-ray scattering lineouts.}
 	\end{figure}
 	
-	It seems like $\chi^2 \sim 0.001$ corresponds with $R_{CC}$ matching the target.
 	
 	\begin{figure}[H]
 		\centering
 		\begin{subfigure}{0.8\textwidth}
 		\includegraphics[width=\textwidth]{rcc_plots.png}
-		\caption{Temperature cycle method: Do not restart from the starting geometry at each cycle, but start at the last geometry of the previous cycle.}
+		\caption{Bond-opening C-C distance, and 1-3-4-6 dihedral angle.}
 		\end{subfigure}
 	\hfill
-		\begin{subfigure}{0.8\textwidth}
-			\includegraphics[width=\textwidth]{rcc_plots.png}
-			\caption{Robust restart method: Restart from a slight perturbation of the starting geometry at each cycle, and use 5x the amount of steps per cycle.}
+		\begin{subfigure}{\textwidth}
+			\includegraphics[width=0.8\textwidth]{chi2_t.png}
+			\caption{$|\chi|$ and $\chi^2$ values for each time-point.u}
 		\end{subfigure}
-		\caption{CHD ring-opening C-C distance, $R_{CC}$. The target is from a surface hopping trajectory. Predictions are using $q_\textrm{max} = 25.0$ \AA$^{-1}$.}
+		\caption{CHD ring-opening C-C distance, $R_{CC}$. The target is from a surface hopping trajectory. Predictions are using $q_\textrm{max} = 12.0$ \AA$^{-1}$.}
 		\label{fig:rcc_q25}
 	\end{figure}
 
@@ -154,6 +168,29 @@
 	\caption{CHD target and predicted, showing all C-C bond-lengths.}
 	\label{fig:figures}
 	\end{figure}
+
+	\subsection{Reproduce NMM trajectory from experiment data}
+%\subsection{R 094}
+%
+%At first I try step-size 0.04, starting temperature 0.2. A lot of restarts e.g. 20-30 with about 900 steps (not accepted steps, just steps), 2 reverts followed by a restarting stochastic descent from $\chi^2_{\textrm{best}}$.
+
+%\begin{figure}[H]
+%	\centering
+%	\includegraphics[width=0.8\textwidth]{chi2_t.png}
+%	\caption{
+	%Notes: It performs very well during step 0-14. I assume the minimum is out of reach for the algorithm at step 15. The sudden jump seems to reveal this...\\
+	%Notes: Run starting at t=15 with more restarts (30 instead of 20). Same thing happens; it still can't find a low minimum...\\
+	%Start at t=15 again. Increased step-size to 0.1, restarts back to 20. Ok it seems like it's a step-size issue. It strongly seems like the original runs cannot reach the lower minimum due to too small a step-size.\\
+	%Again, more steps $N = 1429$. Performs similarly. The xyz file looks close to correct however; maybe $\chi^2 \sim 10^{-3}$ is acceptable.\\
+	%Time-dependent step-size; proportional to the mean of the absolute target percent different signal. Performs badly.\\
+	%Not shown: t-dependent $\Delta s$ but proportional to the delta between target pcd. Sometimes has very low, step-sizes = performs bad at later steps.\\
+	%Not tried yet: step-size finder...\\
+	%\\
+	%Load previous npz file, and start from those xyzs. It will auto-skip ones with $\chi^2 < value$, and try to improve on others.
+%	}
+
+%\end{figure}
+
 
 \bibliographystyle{plain}
 \bibliography{library}

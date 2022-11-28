@@ -1,12 +1,18 @@
+write sa_version4 ()
++ description in report ()
+
+- define data directory
+- literal "restart.npz"
+
+qmax = 8 results (...)
+ - fix molecule not moving issue  ...
+
+
 move along modes with various fixed step-sizes
 
 use algorithm and plot chi2 with different max_step-size
 
 
-
-keep saving to a file 'restart.npz' all the best ds value for each step, then re-running always improves
-- it loads that value but still adds variance 
-- "UseRestart" option 
 
 
 use knowledge of magnitude oftarget-pcd to have ds(t), and N(t)
